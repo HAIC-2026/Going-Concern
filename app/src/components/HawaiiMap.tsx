@@ -23,7 +23,7 @@ type HawaiiMapProps = {
     districtName: string,
     chamber: Chamber
   ) => void;
-  onChamberChange: (chamber: Chamber) => void;
+  chamber: Chamber;
 };
 
 const GIS_BASE =
@@ -193,9 +193,8 @@ function MapPointerReset({
 
 export default function HawaiiMap({
   onDistrictSelect,
-  onChamberChange,
+  chamber,
 }: HawaiiMapProps) {
-  const [chamber, setChamber] = useState<Chamber>("House");
 
   const [districts, setDistricts] =
     useState<FeatureCollection | null>(null);
@@ -289,16 +288,6 @@ export default function HawaiiMap({
     return () => controller.abort();
   }, [chamber]);
 
-  function changeChamber(nextChamber: Chamber) {
-    if (nextChamber === chamber) return;
-
-    resetHighlights();
-    selectedLayer.current = null;
-    districtLayers.current.clear();
-
-    setChamber(nextChamber);
-    onChamberChange(nextChamber);
-  }
 
 return (
   <div
@@ -363,48 +352,6 @@ return (
           </>
         )}
       </MapContainer>
-
-      <div
-        style={{
-          position: "absolute",
-          top: "88px",
-          left: "250px",
-          zIndex: 1000,
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "8px",
-          background: "rgba(15,23,42,0.94)",
-          borderRadius: "10px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-        }}
-      >
-        {(["House", "Senate"] as Chamber[]).map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => changeChamber(item)}
-            style={{
-              padding: "9px 16px",
-              borderRadius: "7px",
-              border: "none",
-              cursor: "pointer",
-              background:
-                chamber === item
-                  ? "#2563eb"
-                  : "transparent",
-              color:
-                chamber === item
-                  ? "#ffffff"
-                  : "#cbd5e1",
-              fontWeight: 600,
-              fontSize: "13px",
-            }}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
 
       {loading && (
         <div

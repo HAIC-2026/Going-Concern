@@ -157,8 +157,8 @@ export default function Home() {
       {/* Full-screen map */}
       <div className="map-canvas">
         <HawaiiMap
+          chamber={chamber}
           onDistrictSelect={handleDistrictSelect}
-          onChamberChange={handleChamberChange}
         />
       </div>
 
@@ -173,9 +173,19 @@ export default function Home() {
           </div>
         </div>
 
-        <span className="topbar-label">
-          {chamber.toUpperCase()} DISTRICTS
-        </span>
+        <div className="chamber-switch" role="group" aria-label="Legislative chamber">
+          {(["House", "Senate"] as Chamber[]).map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={chamber === item ? "selected" : ""}
+              aria-pressed={chamber === item}
+              onClick={() => handleChamberChange(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* Sidebar and attached collapse handle */}
@@ -361,6 +371,36 @@ export default function Home() {
           color: #94a3b8;
           font-size: 12px;
           margin-top: 5px;
+        }
+
+        .chamber-switch {
+          display: flex;
+          gap: 4px;
+          padding: 5px;
+          border-radius: 10px;
+          background: #152238;
+          border: 1px solid #293b54;
+        }
+
+        .chamber-switch button {
+          border: 0;
+          border-radius: 7px;
+          padding: 9px 16px;
+          background: transparent;
+          color: #cbd5e1;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .chamber-switch button.selected {
+          background: #2563eb;
+          color: #ffffff;
+        }
+
+        .chamber-switch button:focus-visible {
+          outline: 2px solid #60a5fa;
+          outline-offset: 2px;
         }
 
         .topbar-label {
@@ -642,7 +682,37 @@ export default function Home() {
             font-size: 10px;
           }
 
-          .topbar-label {
+          .chamber-switch {
+          display: flex;
+          gap: 4px;
+          padding: 5px;
+          border-radius: 10px;
+          background: #152238;
+          border: 1px solid #293b54;
+        }
+
+        .chamber-switch button {
+          border: 0;
+          border-radius: 7px;
+          padding: 9px 16px;
+          background: transparent;
+          color: #cbd5e1;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .chamber-switch button.selected {
+          background: #2563eb;
+          color: #ffffff;
+        }
+
+        .chamber-switch button:focus-visible {
+          outline: 2px solid #60a5fa;
+          outline-offset: 2px;
+        }
+
+        .topbar-label {
             display: none;
           }
 
