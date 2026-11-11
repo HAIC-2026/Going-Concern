@@ -12,13 +12,21 @@ type SelectedDistrict = {
 type DistrictPopulation = Record<string, number>;
 type DistrictIncome = Record<string, number>;
 type PopulationStatus = "loading" | "ready" | "error";
+type ExtraMetrics = {
+  povertyRate: number | null;
+  unemploymentRate: number | null;
+  medianHomeValue: number | null;
+  medianGrossRent: number | null;
+  bachelorsOrHigherRate: number | null;
+};
+type DistrictMetrics = Record<string, ExtraMetrics>;
 
 const HawaiiMap = dynamic(
   () => import("../components/HawaiiMap"),
   {
     ssr: false,
     loading: () => (
-      <div style={{ color: "#cbd5e1", padding: 24 }}>
+      <div style={{ color: "#d4d8dc", padding: 24 }}>
         Loading Hawaiʻi map...
       </div>
     ),
@@ -49,6 +57,10 @@ export default function Home() {
     Record<Chamber, DistrictIncome>
   >({ House: {}, Senate: {} });
 
+  const [extraMetrics, setExtraMetrics] = useState<Record<Chamber, DistrictMetrics>>({
+    House: {}, Senate: {},
+  });
+
   const [populationStatus, setPopulationStatus] = useState<
     Record<Chamber, PopulationStatus>
   >({ House: "loading", Senate: "loading" });
@@ -69,7 +81,7 @@ export default function Home() {
 
         const data = await response.json();
 
-        if (!Array.isArray(data.rows) || !Array.isArray(data.incomeRows)) {
+        if (!Array.isArray(data.rows) || !Array.isArray(data.incomeRows) || !Array.isArray(data.districts)) {
           throw new Error("Invalid Census response");
         }
 
@@ -108,7 +120,29 @@ export default function Home() {
           }
         }
 
+        const metrics: DistrictMetrics = {};
+        const validMetric = (value: unknown): number | null =>
+          typeof value === "number" && Number.isFinite(value) && value >= 0
+            ? value
+            : null;
+        for (const district of data.districts) {
+          if (!district || typeof district !== "object") continue;
+          const districtId = Number(district.district);
+          if (!Number.isInteger(districtId) || districtId <= 0) continue;
+          metrics[String(districtId)] = {
+            povertyRate: validMetric(district.povertyRate),
+            unemploymentRate: validMetric(district.unemploymentRate),
+            medianHomeValue: validMetric(district.medianHomeValue),
+            medianGrossRent: validMetric(district.medianGrossRent),
+            bachelorsOrHigherRate: validMetric(district.bachelorsOrHigherRate),
+          };
+        }
+
         if (!controller.signal.aborted) {
+          setExtraMetrics((previous) => ({
+            ...previous,
+            [selectedChamber]: metrics,
+          }));
           setIncomeData((previous) => ({
             ...previous,
             [selectedChamber]: income,
@@ -171,6 +205,24 @@ export default function Home() {
     selectedDistrict && districtNumber
       ? incomeData[selectedDistrict.chamber][String(Number(districtNumber))]
       : undefined;
+
+  const selectedMetrics = selectedDistrict && districtNumber
+    ? extraMetrics[selectedDistrict.chamber][String(Number(districtNumber))]
+    : undefined;
+
+  function extraDisplay(key: keyof ExtraMetrics, kind: "percent" | "currency") {
+    if (!selectedDistrict) return "—";
+    const status = populationStatus[selectedDistrict.chamber];
+    if (status === "loading") return "Loading...";
+    if (status === "error") return "Unavailable";
+    const value = selectedMetrics?.[key];
+    if (value === null || value === undefined) return "Unavailable";
+    return kind === "percent"
+      ? `${value.toLocaleString("en-US", { maximumFractionDigits: 1 })}%`
+      : value.toLocaleString("en-US", {
+          style: "currency", currency: "USD", maximumFractionDigits: 0,
+        });
+  }
 
   function incomeDisplay() {
     if (!selectedDistrict) return "—";
@@ -383,6 +435,26 @@ export default function Home() {
               <span>2024 ACS 5-Year Estimates · Annual</span>
             </div>
 
+            <div className="extra-metrics">
+              <h3>ECONOMIC &amp; HOUSING INDICATORS</h3>
+              <div className="metric-grid">
+                {([
+                  ["POVERTY RATE", "povertyRate", "percent", "People below poverty threshold"],
+                  ["UNEMPLOYMENT RATE", "unemploymentRate", "percent", "Civilian labor force"],
+                  ["MEDIAN HOME VALUE", "medianHomeValue", "currency", "Owner-occupied housing units"],
+                  ["MEDIAN GROSS RENT", "medianGrossRent", "currency", "Monthly rent"],
+                  ["BACHELOR'S OR HIGHER", "bachelorsOrHigherRate", "percent", "Adults age 25+"],
+                ] as const).map(([label, key, kind, description]) => (
+                  <div className="metric-card" key={key}>
+                    <p>{label}</p>
+                    <strong>{extraDisplay(key, kind)}</strong>
+                    <span>{description}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="metric-source">2024 ACS 5-Year Estimates · U.S. Census Bureau</p>
+            </div>
+
             <div className="details">
               <h3>District Details</h3>
 
@@ -401,9 +473,8 @@ export default function Home() {
             </div>
 
             <div className="coming-soon">
-              Additional demographic, housing, and program
-              intelligence metrics will appear here as
-              data layers are integrated.
+              Additional program intelligence and geographic comparisons
+              will appear as more data sources are integrated.
             </div>
           </>
         )}
@@ -416,8 +487,8 @@ export default function Home() {
           height: 100vh;
           height: 100dvh;
           overflow: hidden;
-          background: #0b1220;
-          color: #f1f5f9;
+          background: #0d0f11;
+          color: #f4f5f6;
           font-family: Arial, Helvetica, sans-serif;
           --sidebar-width: 228px;
         }
@@ -451,8 +522,8 @@ export default function Home() {
           justify-content: space-between;
           align-items: center;
           padding: 0 24px;
-          background: rgba(12, 23, 40, 0.96);
-          border-bottom: 1px solid #293b54;
+          background: rgba(16, 18, 20, 0.97);
+          border-bottom: 1px solid #383d42;
         }
 
         .brand {
@@ -462,7 +533,7 @@ export default function Home() {
         }
 
         .brand-symbol {
-          color: #60a5fa;
+          color: #d6dbe0;
           font-size: 26px;
         }
 
@@ -473,7 +544,7 @@ export default function Home() {
         }
 
         .brand p {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 12px;
           margin-top: 5px;
         }
@@ -483,8 +554,8 @@ export default function Home() {
           gap: 4px;
           padding: 5px;
           border-radius: 10px;
-          background: #152238;
-          border: 1px solid #293b54;
+          background: #202327;
+          border: 1px solid #383d42;
         }
 
         .chamber-switch button {
@@ -492,25 +563,25 @@ export default function Home() {
           border-radius: 7px;
           padding: 9px 16px;
           background: transparent;
-          color: #cbd5e1;
+          color: #d4d8dc;
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
         }
 
         .chamber-switch button.selected {
-          background: #2563eb;
+          background: #50575e;
           color: #ffffff;
         }
 
         .chamber-switch button:focus-visible {
-          outline: 2px solid #60a5fa;
+          outline: 2px solid #d6dbe0;
           outline-offset: 2px;
         }
 
         .topbar-label {
           font-size: 11px;
-          color: #60a5fa;
+          color: #d6dbe0;
           font-weight: 700;
           letter-spacing: 1px;
         }
@@ -522,8 +593,8 @@ export default function Home() {
           left: 0;
           width: var(--sidebar-width);
           z-index: 1100;
-          background: rgba(13, 25, 43, 0.96);
-          border-right: 1px solid #293b54;
+          background: rgba(19, 21, 24, 0.97);
+          border-right: 1px solid #383d42;
           transition: width 0.28s ease;
           overflow: visible;
         }
@@ -535,7 +606,7 @@ export default function Home() {
         }
 
         .section-label {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 11px;
           letter-spacing: 1.5px;
           margin: 0 12px 20px;
@@ -578,8 +649,8 @@ export default function Home() {
         .layer-options {
           margin: 6px 2px 14px;
           padding: 12px;
-          background: #152238;
-          border: 1px solid #293b54;
+          background: #202327;
+          border: 1px solid #383d42;
           border-radius: 9px;
           font-size: 12px;
         }
@@ -587,7 +658,7 @@ export default function Home() {
           margin: 0 0 10px;
           font-size: 10px;
           letter-spacing: 0.8px;
-          color: #94a3b8;
+          color: #a7adb4;
         }
         .layer-options label {
           display: flex;
@@ -596,9 +667,9 @@ export default function Home() {
           margin: 10px 0;
           cursor: pointer;
         }
-        .layer-options input { accent-color: #3b82f6; }
+        .layer-options input { accent-color: #c5cbd1; }
         .income-legend {
-          border-top: 1px solid #293b54;
+          border-top: 1px solid #383d42;
           margin-top: 14px;
           padding-top: 12px;
         }
@@ -607,7 +678,7 @@ export default function Home() {
           align-items: center;
           gap: 8px;
           margin: 7px 0;
-          color: #cbd5e1;
+          color: #d4d8dc;
         }
         .legend-row span {
           width: 14px;
@@ -615,16 +686,16 @@ export default function Home() {
           border-radius: 2px;
           flex-shrink: 0;
         }
-        .income-legend small { color: #94a3b8; }
+        .income-legend small { color: #a7adb4; }
 
         .nav-item.active {
-          background: #1e3656;
-          color: #60a5fa;
+          background: #30363b;
+          color: #d6dbe0;
           font-weight: 700;
         }
 
         .nav-item.disabled {
-          color: #94a3b8;
+          color: #a7adb4;
           opacity: 0.65;
           cursor: not-allowed;
         }
@@ -658,11 +729,11 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid #293b54;
+          border: 1px solid #383d42;
           border-left: none;
           border-radius: 0 7px 7px 0;
-          background: #0d192b;
-          color: #94a3b8;
+          background: #202327;
+          color: #a7adb4;
           font-size: 24px;
           line-height: 1;
           cursor: pointer;
@@ -673,20 +744,20 @@ export default function Home() {
         }
 
         .collapse-handle:hover {
-          color: #60a5fa;
-          background: #152238;
+          color: #d6dbe0;
+          background: #202327;
         }
 
         .collapse-handle:focus-visible {
-          outline: 2px solid #60a5fa;
+          outline: 2px solid #d6dbe0;
           outline-offset: 2px;
         }
 
         .sources {
           margin-top: 36px;
           padding: 16px;
-          border: 1px solid #293b54;
-          background: #152238;
+          border: 1px solid #383d42;
+          background: #202327;
           border-radius: 10px;
         }
 
@@ -695,7 +766,7 @@ export default function Home() {
         }
 
         .sources p {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 12px;
           margin-top: 9px;
         }
@@ -716,8 +787,8 @@ export default function Home() {
           width: 350px;
           max-width: calc(100vw - 32px);
           z-index: 1100;
-          background: rgba(18, 32, 53, 0.97);
-          border: 1px solid #293b54;
+          background: rgba(27, 30, 33, 0.98);
+          border: 1px solid #383d42;
           border-radius: 12px;
           padding: 24px;
           box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
@@ -743,7 +814,7 @@ export default function Home() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          color: #60a5fa;
+          color: #d6dbe0;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 1.2px;
@@ -752,7 +823,7 @@ export default function Home() {
         .panel-heading button {
           background: transparent;
           border: none;
-          color: #cbd5e1;
+          color: #d4d8dc;
           font-size: 18px;
           cursor: pointer;
         }
@@ -764,7 +835,7 @@ export default function Home() {
         }
 
         .panel-subtitle {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 13px;
           margin-top: 8px;
         }
@@ -772,13 +843,13 @@ export default function Home() {
         .population-card {
           margin-top: 28px;
           padding: 20px;
-          background: #1c304b;
-          border: 1px solid #293b54;
+          background: #202327;
+          border: 1px solid #383d42;
           border-radius: 10px;
         }
 
         .population-card p {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 12px;
           margin-bottom: 12px;
         }
@@ -790,7 +861,7 @@ export default function Home() {
 
         .population-card span {
           display: block;
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 11px;
           margin-top: 10px;
         }
@@ -798,13 +869,13 @@ export default function Home() {
         .income-card {
           margin-top: 12px;
           padding: 20px;
-          background: #1c304b;
-          border: 1px solid #293b54;
+          background: #202327;
+          border: 1px solid #383d42;
           border-radius: 10px;
         }
 
         .income-card p {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 12px;
           margin-bottom: 12px;
         }
@@ -816,13 +887,28 @@ export default function Home() {
 
         .income-card span {
           display: block;
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 11px;
           margin-top: 10px;
         }
 
+        .extra-metrics { margin-top: 26px; }
+        .extra-metrics h3 {
+          font-size: 11px; letter-spacing: 1px; color: #a7adb4;
+          margin: 0 0 12px;
+        }
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .metric-card {
+          min-width: 0; padding: 14px 12px; background: #202327;
+          border: 1px solid #383d42; border-radius: 10px;
+        }
+        .metric-card p { color: #a7adb4; font-size: 10px; line-height: 1.4; margin: 0 0 9px; }
+        .metric-card strong { display: block; font-size: 19px; overflow-wrap: anywhere; }
+        .metric-card span { display: block; margin-top: 8px; color: #a7adb4; font-size: 10px; line-height: 1.4; }
+        .metric-source { margin-top: 10px; color: #a7adb4; font-size: 10px; }
+
         .details {
-          border-top: 1px solid #293b54;
+          border-top: 1px solid #383d42;
           margin-top: 28px;
           padding-top: 20px;
         }
@@ -833,21 +919,21 @@ export default function Home() {
         }
 
         .details p {
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 13px;
           margin-bottom: 14px;
         }
 
         .details strong {
-          color: #f1f5f9;
+          color: #f4f5f6;
         }
 
         .coming-soon {
           margin-top: 28px;
           padding: 16px;
-          border: 1px dashed #293b54;
+          border: 1px dashed #383d42;
           border-radius: 10px;
-          color: #94a3b8;
+          color: #a7adb4;
           font-size: 12px;
           line-height: 1.7;
         }
@@ -870,8 +956,8 @@ export default function Home() {
           gap: 4px;
           padding: 5px;
           border-radius: 10px;
-          background: #152238;
-          border: 1px solid #293b54;
+          background: #202327;
+          border: 1px solid #383d42;
         }
 
         .chamber-switch button {
@@ -879,19 +965,19 @@ export default function Home() {
           border-radius: 7px;
           padding: 9px 16px;
           background: transparent;
-          color: #cbd5e1;
+          color: #d4d8dc;
           font-size: 13px;
           font-weight: 600;
           cursor: pointer;
         }
 
         .chamber-switch button.selected {
-          background: #2563eb;
+          background: #50575e;
           color: #ffffff;
         }
 
         .chamber-switch button:focus-visible {
-          outline: 2px solid #60a5fa;
+          outline: 2px solid #d6dbe0;
           outline-offset: 2px;
         }
 

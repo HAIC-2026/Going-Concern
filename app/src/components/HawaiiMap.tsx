@@ -38,10 +38,10 @@ function getDistrictUrl(chamber: Chamber) {
 }
 
 const normalStyle: L.PathOptions = {
-  color: "#64748b",
+  color: "#777e85",
   weight: 1.2,
   opacity: 0.65,
-  fillColor: "#64748b",
+  fillColor: "#777e85",
   fillOpacity: 0.02,
 };
 
@@ -54,7 +54,7 @@ function incomeStyle(value: number | undefined): L.PathOptions {
     value < 120000 ? "#22c55e" : "#3b82f6";
   return {
     ...normalStyle,
-    color: "#94a3b8",
+    color: "#9ca3aa",
     opacity: 0.85,
     fillColor: color,
     fillOpacity: value === undefined ? 0.06 : 0.52,
@@ -62,19 +62,19 @@ function incomeStyle(value: number | undefined): L.PathOptions {
 }
 
 const hoverStyle: L.PathOptions = {
-  color: "#38bdf8",
+  color: "#f4f5f6",
   weight: 2.5,
   opacity: 1,
-  fillColor: "#38bdf8",
-  fillOpacity: 0.18,
+  fillColor: "#f4f5f6",
+  fillOpacity: 0.12,
 };
 
 const selectedStyle: L.PathOptions = {
-  color: "#3b82f6",
+  color: "#f4f5f6",
   weight: 3,
   opacity: 1,
-  fillColor: "#3b82f6",
-  fillOpacity: 0.22,
+  fillColor: "#f4f5f6",
+  fillOpacity: 0.16,
 };
 
 function getDistrictName(
@@ -342,7 +342,7 @@ return (
         style={{
           width: "100%",
           height: "100%",
-          background: "#dce8e6",
+          background: "#0d0f11",
         }}
       >
         <MapResize />
@@ -351,7 +351,7 @@ return (
 
         <TileLayer
   attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; OpenStreetMap contributors'
-  url={`https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_KEY}`}
+  url={`https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_KEY}`}
 />
 
         {districts && (
