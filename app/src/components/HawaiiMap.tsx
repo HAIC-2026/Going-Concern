@@ -8,6 +8,7 @@ import {
   GeoJSON,
   useMap,
 } from "react-leaflet";
+import L from "leaflet";
 import type {
   Feature,
   FeatureCollection,
@@ -34,13 +35,6 @@ function getDistrictUrl(chamber: Chamber) {
   return `${GIS_BASE}/${layer}/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&geometryPrecision=5&maxAllowableOffset=0.001&f=geojson`;
 }
 
-const markerIcon = L.divIcon({
-  className: "",
-  html: '<div style="background:#1456a0;border:3px solid white;width:18px;height:18px;border-radius:50%;box-shadow:0 2px 8px #0005"></div>',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-});
-
 const normalStyle: L.PathOptions = {
   color: "#2563eb",
   weight: 1.2,
@@ -54,7 +48,7 @@ const hoverStyle: L.PathOptions = {
   weight: 2.5,
   opacity: 1,
   fillColor: "#38bdf8",
-  fillOpacity: 0.45,
+  fillOpacity: 0.48,
 };
 
 const selectedStyle: L.PathOptions = {
@@ -93,9 +87,7 @@ function DistrictLabels({
   const [zoom, setZoom] = useState(map.getZoom());
 
   useEffect(() => {
-    function updateZoom() {
-      setZoom(map.getZoom());
-    }
+    const updateZoom = () => setZoom(map.getZoom());
 
     map.on("zoomend", updateZoom);
 
@@ -107,7 +99,7 @@ function DistrictLabels({
   useEffect(() => {
     if (zoom < 9) return;
 
-    const labels: L.Marker[] = [];
+    const labels = L.layerGroup();
 
     districts.features.forEach((feature) => {
       if (!feature.geometry) return;
@@ -117,8 +109,7 @@ function DistrictLabels({
 
       if (!number) return;
 
-      const layer = L.geoJSON(feature);
-      const bounds = layer.getBounds();
+      const bounds = L.geoJSON(feature).getBounds();
 
       if (!bounds.isValid()) return;
 
@@ -130,12 +121,14 @@ function DistrictLabels({
           className: "",
           html: `
             <div style="
+              width:28px;
+              text-align:center;
               font-size:12px;
               font-weight:700;
               color:#0f172a;
-              text-shadow:0 1px 2px white;
-              text-align:center;
-              width:28px;
+              text-shadow:
+                0 1px 2px white,
+                0 -1px 2px white;
             ">${number}</div>
           `,
           iconSize: [28, 20],
@@ -143,14 +136,53 @@ function DistrictLabels({
         }),
       });
 
-      label.addTo(map);
-      labels.push(label);
+      labels.addLayer(label);
     });
 
+    labels.addTo(map);
+
     return () => {
-      labels.forEach((label) => map.removeLayer(label));
+      map.removeLayer(labels);
     };
   }, [map, districts, chamber, zoom]);
+
+  return null;
+}
+
+function MapResize() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [map]);
+
+  return null;
+}
+
+function MapPointerReset({
+  clearHover,
+}: {
+  clearHover: () => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.on("mouseout", clearHover);
+    map.on("dragstart", clearHover);
+
+    return () => {
+      map.off("mouseout", clearHover);
+      map.off("dragstart", clearHover);
+    };
+  }, [map, clearHover]);
 
   return null;
 }
@@ -168,6 +200,56 @@ export default function HawaiiMap({
   const [error, setError] = useState("");
 
   const selectedLayer = useRef<L.Path | null>(null);
+  const hoveredLayer = useRef<L.Path | null>(null);
+
+  function clearHover() {
+    const previous = hoveredLayer.current;
+
+    if (previous && previous !== selectedLayer.current) {
+      previous.setStyle(normalStyle);
+    }
+
+    hoveredLayer.current = null;
+  }
+
+  function hoverDistrict(layer: L.Path) {
+    if (hoveredLayer.current !== layer) {
+      clearHover();
+    }
+
+    hoveredLayer.current = layer;
+
+    if (layer !== selectedLayer.current) {
+      layer.setStyle(hoverStyle);
+    }
+  }
+
+  function leaveDistrict(layer: L.Path) {
+    if (hoveredLayer.current === layer) {
+      clearHover();
+    } else if (layer !== selectedLayer.current) {
+      layer.setStyle(normalStyle);
+    }
+  }
+
+  function selectDistrict(
+    name: string,
+    layer: L.Path
+  ) {
+    const previous = selectedLayer.current;
+
+    if (previous && previous !== layer) {
+      previous.setStyle(normalStyle);
+    }
+
+    selectedLayer.current = layer;
+    hoveredLayer.current = layer;
+
+    layer.setStyle(selectedStyle);
+    layer.bringToFront();
+
+    onDistrictSelect(name, chamber);
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,7 +258,9 @@ export default function HawaiiMap({
       setLoading(true);
       setError("");
       setDistricts(null);
+
       selectedLayer.current = null;
+      hoveredLayer.current = null;
 
       try {
         const response = await fetch(
@@ -220,100 +304,35 @@ export default function HawaiiMap({
   function changeChamber(nextChamber: Chamber) {
     if (nextChamber === chamber) return;
 
+    clearHover();
     selectedLayer.current = null;
+
     setChamber(nextChamber);
     onChamberChange(nextChamber);
   }
 
-  function selectDistrict(
-    name: string,
-    layer: L.Path
-  ) {
-    if (selectedLayer.current) {
-      selectedLayer.current.setStyle(normalStyle);
-    }
-
-    selectedLayer.current = layer;
-    layer.setStyle(selectedStyle);
-
-    if ("bringToFront" in layer) {
-      layer.bringToFront();
-    }
-
-    onDistrictSelect(name, chamber);
-  }
-
-  return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          marginBottom: "12px",
-        }}
-      >
-        <span style={{ fontWeight: 600 }}>
-          Legislative boundaries:
-        </span>
-
-        <button
-          type="button"
-          onClick={() => changeChamber("House")}
-          style={{
-            padding: "8px 16px",
-            borderRadius: "8px",
-            border: "1px solid #94a3b8",
-            background:
-              chamber === "House" ? "#2563eb" : "#ffffff",
-            color:
-              chamber === "House" ? "#ffffff" : "#334155",
-            cursor: "pointer",
-          }}
-        >
-          House
-        </button>
-
-        <button
-          type="button"
-          onClick={() => changeChamber("Senate")}
-          style={{
-            padding: "8px 16px",
-            borderRadius: "8px",
-            border: "1px solid #94a3b8",
-            background:
-              chamber === "Senate" ? "#2563eb" : "#ffffff",
-            color:
-              chamber === "Senate" ? "#ffffff" : "#334155",
-            cursor: "pointer",
-          }}
-        >
-          Senate
-        </button>
-      </div>
-
-      {loading && (
-        <p style={{ color: "#64748b" }}>
-          Loading {chamber} district boundaries...
-        </p>
-      )}
-
-      {error && (
-        <p style={{ color: "red", marginBottom: "12px" }}>
-          {error}
-        </p>
-      )}
-
+return (
+  <div
+ style={{
+  width: "100%",
+  height: "100dvh",
+  position: "relative",
+}}
+  >
       <MapContainer
         center={[20.8, -156.3]}
         zoom={7}
         scrollWheelZoom={true}
         style={{
-          height: "500px",
           width: "100%",
-          borderRadius: "12px",
+          height: "100%",
+          background: "#dce8e6",
         }}
       >
+        <MapResize />
+
+        <MapPointerReset clearHover={clearHover} />
+
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -334,16 +353,11 @@ export default function HawaiiMap({
                 const path = layer as L.Path;
 
                 layer.on("mouseover", () => {
-                  if (selectedLayer.current !== path) {
-                    path.setStyle(hoverStyle);
-                    path.bringToFront();
-                  }
+                  hoverDistrict(path);
                 });
 
                 layer.on("mouseout", () => {
-                  if (selectedLayer.current !== path) {
-                    path.setStyle(normalStyle);
-                  }
+                  leaveDistrict(path);
                 });
 
                 layer.on("click", () => {
@@ -358,20 +372,85 @@ export default function HawaiiMap({
             />
           </>
         )}
-
-      
       </MapContainer>
 
-      <p
+      <div
         style={{
-          marginTop: "12px",
-          fontSize: "13px",
-          color: "#64748b",
+          position: "absolute",
+          top: "88px",
+          left: "250px",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px",
+          background: "rgba(15,23,42,0.94)",
+          borderRadius: "10px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
         }}
       >
-        Boundary source: State of Hawaiʻi GIS Program,
-        2022 {chamber} districts.
-      </p>
+        {(["House", "Senate"] as Chamber[]).map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => changeChamber(item)}
+            style={{
+              padding: "9px 16px",
+              borderRadius: "7px",
+              border: "none",
+              cursor: "pointer",
+              background:
+                chamber === item
+                  ? "#2563eb"
+                  : "transparent",
+              color:
+                chamber === item
+                  ? "#ffffff"
+                  : "#cbd5e1",
+              fontWeight: 600,
+              fontSize: "13px",
+            }}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      {loading && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "24px",
+            left: "24px",
+            zIndex: 1000,
+            background: "#0f172a",
+            color: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            fontSize: "12px",
+          }}
+        >
+          Loading {chamber} districts...
+        </div>
+      )}
+
+      {error && (
+        <div
+          role="alert"
+          style={{
+            position: "absolute",
+            bottom: "24px",
+            left: "24px",
+            zIndex: 1000,
+            background: "#7f1d1d",
+            color: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "8px",
+          }}
+        >
+          {error}
+        </div>
+      )}
     </div>
   );
 }
