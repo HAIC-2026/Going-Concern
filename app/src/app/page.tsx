@@ -10,6 +10,7 @@ type SelectedDistrict = {
   chamber: Chamber;
 };
 type DistrictPopulation = Record<string, number>;
+type DistrictIncome = Record<string, number>;
 type PopulationStatus = "loading" | "ready" | "error";
 
 const HawaiiMap = dynamic(
@@ -42,6 +43,10 @@ export default function Home() {
     Record<Chamber, DistrictPopulation>
   >({ House: {}, Senate: {} });
 
+  const [incomeData, setIncomeData] = useState<
+    Record<Chamber, DistrictIncome>
+  >({ House: {}, Senate: {} });
+
   const [populationStatus, setPopulationStatus] = useState<
     Record<Chamber, PopulationStatus>
   >({ House: "loading", Senate: "loading" });
@@ -49,7 +54,7 @@ export default function Home() {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadPopulation(selectedChamber: Chamber) {
+    async function loadCensusData(selectedChamber: Chamber) {
       try {
         const response = await fetch(
           `/api/census?chamber=${selectedChamber}`,
@@ -62,7 +67,7 @@ export default function Home() {
 
         const data = await response.json();
 
-        if (!Array.isArray(data.rows)) {
+        if (!Array.isArray(data.rows) || !Array.isArray(data.incomeRows)) {
           throw new Error("Invalid Census response");
         }
 
@@ -81,7 +86,32 @@ export default function Home() {
           }
         }
 
+        const income: DistrictIncome = {};
+
+        for (const row of data.incomeRows.slice(1)) {
+          if (!Array.isArray(row) || row.length < 4) continue;
+
+          const districtId = Number(row[3]);
+          const estimate = Number(row[1]);
+
+          // Census uses negative sentinel values for unavailable estimates.
+          if (
+            Number.isInteger(districtId) &&
+            districtId > 0 &&
+            Number.isFinite(estimate) &&
+            estimate >= 0 &&
+            row[1] !== ""
+          ) {
+            income[String(districtId)] = estimate;
+          }
+        }
+
         if (!controller.signal.aborted) {
+          setIncomeData((previous) => ({
+            ...previous,
+            [selectedChamber]: income,
+          }));
+
           setPopulationData((previous) => ({
             ...previous,
             [selectedChamber]: population,
@@ -104,8 +134,8 @@ export default function Home() {
       }
     }
 
-    loadPopulation("House");
-    loadPopulation("Senate");
+    loadCensusData("House");
+    loadCensusData("Senate");
 
     return () => controller.abort();
   }, []);
@@ -134,6 +164,27 @@ export default function Home() {
           String(Number(districtNumber))
         ]
       : undefined;
+
+  const income =
+    selectedDistrict && districtNumber
+      ? incomeData[selectedDistrict.chamber][String(Number(districtNumber))]
+      : undefined;
+
+  function incomeDisplay() {
+    if (!selectedDistrict) return "—";
+
+    const status = populationStatus[selectedDistrict.chamber];
+    if (status === "loading") return "Loading...";
+    if (status === "error") return "Unavailable";
+
+    return income !== undefined
+      ? income.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        })
+      : "Unavailable";
+  }
 
   function populationDisplay() {
     if (!selectedDistrict) return "—";
@@ -276,6 +327,12 @@ export default function Home() {
               <p>ESTIMATED POPULATION</p>
               <strong>{populationDisplay()}</strong>
               <span>2024 ACS 5-Year Estimates</span>
+            </div>
+
+            <div className="income-card">
+              <p>MEDIAN HOUSEHOLD INCOME</p>
+              <strong>{incomeDisplay()}</strong>
+              <span>2024 ACS 5-Year Estimates · Annual</span>
             </div>
 
             <div className="details">
@@ -632,6 +689,32 @@ export default function Home() {
         }
 
         .population-card span {
+          display: block;
+          color: #94a3b8;
+          font-size: 11px;
+          margin-top: 10px;
+        }
+
+        .income-card {
+          margin-top: 12px;
+          padding: 20px;
+          background: #1c304b;
+          border: 1px solid #293b54;
+          border-radius: 10px;
+        }
+
+        .income-card p {
+          color: #94a3b8;
+          font-size: 12px;
+          margin-bottom: 12px;
+        }
+
+        .income-card strong {
+          display: block;
+          font-size: 32px;
+        }
+
+        .income-card span {
           display: block;
           color: #94a3b8;
           font-size: 11px;
