@@ -23,7 +23,11 @@ const markerIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-export default function HawaiiMap() {
+type HawaiiMapProps = {
+  onDistrictSelect: (districtName: string) => void;
+};
+
+export default function HawaiiMap({ onDistrictSelect }: HawaiiMapProps) {
   const [districts, setDistricts] =
     useState<FeatureCollection | null>(null);
   const [error, setError] = useState("");
@@ -96,6 +100,9 @@ export default function HawaiiMap() {
               layer.bindPopup(
                 `<strong>${String(name)}</strong><br/>Official 2022 House district boundary`
               );
+              layer.on("click", () => {
+  onDistrictSelect(String(name));
+});
             }}
           />
         )}
