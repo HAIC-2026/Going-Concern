@@ -36,27 +36,27 @@ function getDistrictUrl(chamber: Chamber) {
 }
 
 const normalStyle: L.PathOptions = {
-  color: "#2563eb",
+  color: "#64748b",
   weight: 1.2,
-  opacity: 0.8,
-  fillColor: "#3b82f6",
-  fillOpacity: 0.15,
+  opacity: 0.65,
+  fillColor: "#64748b",
+  fillOpacity: 0.02,
 };
 
 const hoverStyle: L.PathOptions = {
-  color: "#0284c7",
+  color: "#38bdf8",
   weight: 2.5,
   opacity: 1,
   fillColor: "#38bdf8",
-  fillOpacity: 0.48,
+  fillOpacity: 0.18,
 };
 
 const selectedStyle: L.PathOptions = {
-  color: "#1d4ed8",
+  color: "#3b82f6",
   weight: 3,
   opacity: 1,
-  fillColor: "#2563eb",
-  fillOpacity: 0.35,
+  fillColor: "#3b82f6",
+  fillOpacity: 0.22,
 };
 
 function getDistrictName(
@@ -113,7 +113,10 @@ function DistrictLabels({
 
       if (!bounds.isValid()) return;
 
-      const center = bounds.getCenter();
+      const center =
+  chamber === "House" && number === "13"
+    ? L.latLng(21.14, -157.02)
+    : bounds.getCenter();
 
       const label = L.marker(center, {
         interactive: false,
@@ -168,21 +171,22 @@ function MapResize() {
 }
 
 function MapPointerReset({
-  clearHover,
+  resetHighlights,
 }: {
-  clearHover: () => void;
+  resetHighlights: () => void;
 }) {
   const map = useMap();
 
   useEffect(() => {
-    map.on("mouseout", clearHover);
-    map.on("dragstart", clearHover);
+    const container = map.getContainer();
+    container.addEventListener("pointerleave", resetHighlights);
+    map.on("dragstart", resetHighlights);
 
     return () => {
-      map.off("mouseout", clearHover);
-      map.off("dragstart", clearHover);
+      container.removeEventListener("pointerleave", resetHighlights);
+      map.off("dragstart", resetHighlights);
     };
-  }, [map, clearHover]);
+  }, [map, resetHighlights]);
 
   return null;
 }
@@ -201,24 +205,21 @@ export default function HawaiiMap({
 
   const selectedLayer = useRef<L.Path | null>(null);
   const hoveredLayer = useRef<L.Path | null>(null);
+  const districtLayers = useRef<Set<L.Path>>(new Set());
 
-  function clearHover() {
-    const previous = hoveredLayer.current;
-
-    if (previous && previous !== selectedLayer.current) {
-      previous.setStyle(normalStyle);
-    }
-
+  function resetHighlights() {
+    districtLayers.current.forEach((layer) => {
+      layer.setStyle(
+        layer === selectedLayer.current ? selectedStyle : normalStyle
+      );
+    });
     hoveredLayer.current = null;
   }
 
   function hoverDistrict(layer: L.Path) {
-    if (hoveredLayer.current !== layer) {
-      clearHover();
-    }
-
+    // Reset every district, even if Leaflet missed a mouseout event.
+    resetHighlights();
     hoveredLayer.current = layer;
-
     if (layer !== selectedLayer.current) {
       layer.setStyle(hoverStyle);
     }
@@ -226,28 +227,14 @@ export default function HawaiiMap({
 
   function leaveDistrict(layer: L.Path) {
     if (hoveredLayer.current === layer) {
-      clearHover();
-    } else if (layer !== selectedLayer.current) {
-      layer.setStyle(normalStyle);
+      resetHighlights();
     }
   }
 
-  function selectDistrict(
-    name: string,
-    layer: L.Path
-  ) {
-    const previous = selectedLayer.current;
-
-    if (previous && previous !== layer) {
-      previous.setStyle(normalStyle);
-    }
-
+  function selectDistrict(name: string, layer: L.Path) {
     selectedLayer.current = layer;
-    hoveredLayer.current = layer;
-
-    layer.setStyle(selectedStyle);
+    resetHighlights();
     layer.bringToFront();
-
     onDistrictSelect(name, chamber);
   }
 
@@ -261,6 +248,7 @@ export default function HawaiiMap({
 
       selectedLayer.current = null;
       hoveredLayer.current = null;
+      districtLayers.current.clear();
 
       try {
         const response = await fetch(
@@ -304,8 +292,9 @@ export default function HawaiiMap({
   function changeChamber(nextChamber: Chamber) {
     if (nextChamber === chamber) return;
 
-    clearHover();
+    resetHighlights();
     selectedLayer.current = null;
+    districtLayers.current.clear();
 
     setChamber(nextChamber);
     onChamberChange(nextChamber);
@@ -331,12 +320,12 @@ return (
       >
         <MapResize />
 
-        <MapPointerReset clearHover={clearHover} />
+        <MapPointerReset resetHighlights={resetHighlights} />
 
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+  attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; OpenStreetMap contributors'
+  url={`https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_KEY}`}
+/>
 
         {districts && (
           <>
@@ -351,6 +340,7 @@ return (
                 );
 
                 const path = layer as L.Path;
+                districtLayers.current.add(path);
 
                 layer.on("mouseover", () => {
                   hoverDistrict(path);
