@@ -24,6 +24,8 @@ type HawaiiMapProps = {
     chamber: Chamber
   ) => void;
   chamber: Chamber;
+  mapLayer: "boundaries" | "income";
+  incomeByDistrict: Record<string, number>;
 };
 
 const GIS_BASE =
@@ -42,6 +44,22 @@ const normalStyle: L.PathOptions = {
   fillColor: "#64748b",
   fillOpacity: 0.02,
 };
+
+// Fixed, interpretable income bands (USD), rather than relative ranks.
+function incomeStyle(value: number | undefined): L.PathOptions {
+  const color = value === undefined ? "#64748b" :
+    value < 60000 ? "#ef4444" :
+    value < 80000 ? "#f97316" :
+    value < 100000 ? "#facc15" :
+    value < 120000 ? "#22c55e" : "#3b82f6";
+  return {
+    ...normalStyle,
+    color: "#94a3b8",
+    opacity: 0.85,
+    fillColor: color,
+    fillOpacity: value === undefined ? 0.06 : 0.52,
+  };
+}
 
 const hoverStyle: L.PathOptions = {
   color: "#38bdf8",
@@ -194,6 +212,8 @@ function MapPointerReset({
 export default function HawaiiMap({
   onDistrictSelect,
   chamber,
+  mapLayer,
+  incomeByDistrict,
 }: HawaiiMapProps) {
 
   const [districts, setDistricts] =
@@ -205,11 +225,27 @@ export default function HawaiiMap({
   const selectedLayer = useRef<L.Path | null>(null);
   const hoveredLayer = useRef<L.Path | null>(null);
   const districtLayers = useRef<Set<L.Path>>(new Set());
+  const baseStyles = useRef<Map<L.Path, L.PathOptions>>(new Map());
+  const layerNumbers = useRef<Map<L.Path, string>>(new Map());
+
+  // Recolor existing Leaflet polygons without remounting them, preserving selection.
+  useEffect(() => {
+    districtLayers.current.forEach((layer) => {
+      const number = layerNumbers.current.get(layer);
+      const value = number ? incomeByDistrict[number] : undefined;
+      const base = mapLayer === "income" ? incomeStyle(value) : normalStyle;
+      baseStyles.current.set(layer, base);
+      layer.setStyle(layer === selectedLayer.current ? selectedStyle : base);
+    });
+    hoveredLayer.current = null;
+  }, [mapLayer, incomeByDistrict]);
 
   function resetHighlights() {
     districtLayers.current.forEach((layer) => {
       layer.setStyle(
-        layer === selectedLayer.current ? selectedStyle : normalStyle
+        layer === selectedLayer.current
+          ? selectedStyle
+          : (baseStyles.current.get(layer) ?? normalStyle)
       );
     });
     hoveredLayer.current = null;
@@ -248,6 +284,8 @@ export default function HawaiiMap({
       selectedLayer.current = null;
       hoveredLayer.current = null;
       districtLayers.current.clear();
+      baseStyles.current.clear();
+      layerNumbers.current.clear();
 
       try {
         const response = await fetch(
@@ -321,7 +359,13 @@ return (
             <GeoJSON
               key={`${chamber}-${districts.features.length}`}
               data={districts}
-              style={normalStyle}
+              style={(feature) => {
+                if (mapLayer !== "income") return normalStyle;
+                const name = getDistrictName(feature as Feature<Geometry>, chamber);
+                const districtNumber = name.match(/\d+/)?.[0];
+                const value = districtNumber ? incomeByDistrict[String(Number(districtNumber))] : undefined;
+                return incomeStyle(value);
+              }}
               onEachFeature={(feature, layer) => {
                 const name = getDistrictName(
                   feature as Feature<Geometry>,
@@ -330,6 +374,10 @@ return (
 
                 const path = layer as L.Path;
                 districtLayers.current.add(path);
+                const districtNumber = name.match(/\d+/)?.[0];
+                const value = districtNumber ? incomeByDistrict[String(Number(districtNumber))] : undefined;
+                baseStyles.current.set(path, mapLayer === "income" ? incomeStyle(value) : normalStyle);
+                if (districtNumber) layerNumbers.current.set(path, String(Number(districtNumber)));
 
                 layer.on("mouseover", () => {
                   hoverDistrict(path);

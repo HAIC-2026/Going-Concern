@@ -38,6 +38,8 @@ export default function Home() {
   const [selectedDistrict, setSelectedDistrict] =
     useState<SelectedDistrict | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [mapLayer, setMapLayer] = useState<"boundaries" | "income">("boundaries");
+  const [layersOpen, setLayersOpen] = useState(false);
 
   const [populationData, setPopulationData] = useState<
     Record<Chamber, DistrictPopulation>
@@ -209,6 +211,8 @@ export default function Home() {
       <div className="map-canvas">
         <HawaiiMap
           chamber={chamber}
+          mapLayer={mapLayer}
+          incomeByDistrict={incomeData[chamber]}
           onDistrictSelect={handleDistrictSelect}
         />
       </div>
@@ -247,22 +251,66 @@ export default function Home() {
           </p>
 
           <nav aria-label="Main navigation">
-            {NAV_ITEMS.map((item) => (
-              <div
-                key={item.label}
-                className={`nav-item ${
-                  item.active ? "active" : "disabled"
-                }`}
-                title={item.label}
-                aria-label={item.label}
-              >
-                <span className="nav-icon">{item.icon}</span>
-
-                <span className="nav-label">
-                  {item.label}
-                </span>
+            {NAV_ITEMS.map((item) =>
+              item.label === "Data Layers" ? (
+                <button
+                  key={item.label}
+                  type="button"
+                  className={`nav-item nav-button ${layersOpen ? "active" : ""}`}
+                  onClick={() => {
+                    setSidebarOpen(true);
+                    setLayersOpen((open) => !open);
+                  }}
+                  aria-expanded={layersOpen}
+                  title="Data Layers"
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </button>
+              ) : (
+                <div
+                  key={item.label}
+                  className={`nav-item ${item.active ? "active" : "disabled"}`}
+                  title={item.label}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </div>
+              )
+            )}
+            {sidebarOpen && layersOpen && (
+              <div className="layer-options" aria-label="Map data layer">
+                <p>MAP COLORING</p>
+                <label>
+                  <input type="radio" name="map-layer" checked={mapLayer === "boundaries"}
+                    onChange={() => setMapLayer("boundaries")} />
+                  Boundaries only
+                </label>
+                <label>
+                  <input type="radio" name="map-layer" checked={mapLayer === "income"}
+                    onChange={() => setMapLayer("income")} />
+                  Median household income
+                </label>
+                {mapLayer === "income" && (
+                  <div className="income-legend">
+                    <p>ANNUAL HOUSEHOLD INCOME</p>
+                    {[
+                      ["#ef4444", "Under $60k"],
+                      ["#f97316", "$60k–$79,999"],
+                      ["#facc15", "$80k–$99,999"],
+                      ["#22c55e", "$100k–$119,999"],
+                      ["#3b82f6", "$120k+"],
+                      ["#64748b", "No estimate"],
+                    ].map(([color, label]) => (
+                      <div className="legend-row" key={label}>
+                        <span style={{ backgroundColor: color }} />{label}
+                      </div>
+                    ))}
+                    <small>2024 ACS 5-Year · USD</small>
+                  </div>
+                )}
               </div>
-            ))}
+            )}
           </nav>
 
           {sidebarOpen && (
@@ -516,6 +564,58 @@ export default function Home() {
         .nav-label {
           overflow: hidden;
         }
+
+
+        .nav-button {
+          width: 100%;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          font-family: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+        .layer-options {
+          margin: 6px 2px 14px;
+          padding: 12px;
+          background: #152238;
+          border: 1px solid #293b54;
+          border-radius: 9px;
+          font-size: 12px;
+        }
+        .layer-options > p, .income-legend > p {
+          margin: 0 0 10px;
+          font-size: 10px;
+          letter-spacing: 0.8px;
+          color: #94a3b8;
+        }
+        .layer-options label {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          margin: 10px 0;
+          cursor: pointer;
+        }
+        .layer-options input { accent-color: #3b82f6; }
+        .income-legend {
+          border-top: 1px solid #293b54;
+          margin-top: 14px;
+          padding-top: 12px;
+        }
+        .legend-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 7px 0;
+          color: #cbd5e1;
+        }
+        .legend-row span {
+          width: 14px;
+          height: 12px;
+          border-radius: 2px;
+          flex-shrink: 0;
+        }
+        .income-legend small { color: #94a3b8; }
 
         .nav-item.active {
           background: #1e3656;
