@@ -5,6 +5,51 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 type Chamber = "House" | "Senate";
+type ChatMessage = { role: "user" | "assistant"; content: string };
+type MapLayer = "boundaries" | "population" | "income" | "povertyRate" | "unemploymentRate" | "medianHomeValue" | "medianGrossRent" | "bachelorsOrHigherRate";
+type LayerDefinition = { label: string; title: string; thresholds: number[]; labels: string[]; unit: string };
+const LAYER_DEFINITIONS: Record<Exclude<MapLayer, "boundaries">, LayerDefinition> = {
+  population: { label: "Population", title: "ESTIMATED POPULATION", thresholds: [22000, 26000, 30000, 35000], labels: ["Under 22,000", "22,000–25,999", "26,000–29,999", "30,000–34,999", "35,000+"], unit: "residents" },
+  income: { label: "Median household income", title: "ANNUAL HOUSEHOLD INCOME", thresholds: [60000, 80000, 100000, 120000], labels: ["Under $60k", "$60k–$79,999", "$80k–$99,999", "$100k–$119,999", "$120k+"], unit: "USD annually" },
+  povertyRate: { label: "Poverty rate", title: "POVERTY RATE", thresholds: [5, 10, 15, 20], labels: ["Under 5%", "5–9.9%", "10–14.9%", "15–19.9%", "20%+"], unit: "% of poverty universe" },
+  unemploymentRate: { label: "Unemployment rate", title: "UNEMPLOYMENT RATE", thresholds: [3, 5, 7, 10], labels: ["Under 3%", "3–4.9%", "5–6.9%", "7–9.9%", "10%+"], unit: "% of civilian labor force" },
+  medianHomeValue: { label: "Median home value", title: "MEDIAN HOME VALUE", thresholds: [500000, 700000, 900000, 1100000], labels: ["Under $500k", "$500k–$699,999", "$700k–$899,999", "$900k–$1.1m", "$1.1m+"], unit: "USD, owner-occupied" },
+  medianGrossRent: { label: "Median gross rent", title: "MEDIAN GROSS RENT", thresholds: [1200, 1600, 2000, 2400], labels: ["Under $1,200", "$1,200–$1,599", "$1,600–$1,999", "$2,000–$2,399", "$2,400+"], unit: "USD per month" },
+  bachelorsOrHigherRate: { label: "Bachelor's degree or higher", title: "BACHELOR'S DEGREE OR HIGHER", thresholds: [20, 30, 40, 50], labels: ["Under 20%", "20–29.9%", "30–39.9%", "40–49.9%", "50%+"], unit: "% of adults age 25+" },
+};
+const LAYER_COLORS = ["#ef4444", "#f97316", "#facc15", "#22c55e", "#3b82f6"];
+
+// Rent breaks adapt to the actual ACS estimates for the selected chamber.
+// Rounded $100 increments preserve meaningful dollar ranges without forcing quintiles.
+function getRentBreaks(values: number[]): number[] | null {
+  const valid = values.filter((value) => Number.isFinite(value) && value >= 0);
+  if (valid.length < 2) return null;
+  const minimum = Math.min(...valid);
+  const maximum = Math.max(...valid);
+  if (maximum <= minimum) return null;
+  const lower = Math.floor(minimum / 100) * 100;
+  const upper = Math.ceil(maximum / 100) * 100;
+  const step = Math.max(100, Math.ceil((upper - lower) / 500) * 100);
+  return [1, 2, 3, 4].map((index) => lower + index * step);
+}
+
+function money(value: number): string {
+  return `$${value.toLocaleString("en-US")}`;
+}
+
+const LAYER_CONTEXT: Record<Exclude<MapLayer, "boundaries">, string> = {
+  population: "Higher means more residents, not greater population density. Neither end is inherently better.",
+  income: "Higher household income generally indicates greater purchasing power. This is not a measure of living costs.",
+  povertyRate: "Higher poverty rates indicate a larger share of residents below the federal poverty threshold.",
+  unemploymentRate: "Higher unemployment indicates greater labor-market challenges among the civilian labor force.",
+  medianHomeValue: "Higher values indicate more expensive owner-occupied homes; this is not inherently good or bad.",
+  medianGrossRent: "Higher rents can signal greater housing-cost pressure. Compare with local income before judging affordability.",
+  bachelorsOrHigherRate: "Higher values indicate a greater share of adults age 25+ with a bachelor's degree or higher; this is not a measure of individual ability.",
+};
+
+const HIGH_IS_RED: MapLayer[] = ["povertyRate", "unemploymentRate", "medianGrossRent"];
+
+
 type SelectedDistrict = {
   name: string;
   chamber: Chamber;
@@ -46,8 +91,40 @@ export default function Home() {
   const [selectedDistrict, setSelectedDistrict] =
     useState<SelectedDistrict | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [mapLayer, setMapLayer] = useState<"boundaries" | "income">("boundaries");
+  const [mapLayer, setMapLayer] = useState<MapLayer>("boundaries");
   const [layersOpen, setLayersOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatBusy, setChatBusy] = useState(false);
+  const [chatError, setChatError] = useState("");
+
+  async function sendChat(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const message = chatInput.trim();
+    if (!message || chatBusy) return;
+    const previous = chatMessages;
+    setChatMessages([...previous, { role: "user", content: message }]);
+    setChatInput("");
+    setChatError("");
+    setChatBusy(true);
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, history: previous.slice(-6) }),
+      });
+      const data = await response.json();
+      if (!response.ok || typeof data.answer !== "string") {
+        throw new Error(typeof data.error === "string" ? data.error : "Chat request failed.");
+      }
+      setChatMessages((current) => [...current, { role: "assistant", content: data.answer }]);
+    } catch (error) {
+      setChatError(error instanceof Error ? error.message : "Unable to reach the chatbot.");
+    } finally {
+      setChatBusy(false);
+    }
+  }
 
   const [populationData, setPopulationData] = useState<
     Record<Chamber, DistrictPopulation>
@@ -191,6 +268,24 @@ export default function Home() {
     setPanelOpen(false);
   }
 
+  const rentValues = Object.values(extraMetrics[chamber])
+    .map((metrics) => metrics.medianGrossRent)
+    .filter((value): value is number => value !== null && Number.isFinite(value));
+  const rentBreaks = getRentBreaks(rentValues);
+  const activeDefinition = mapLayer === "boundaries" ? null : LAYER_DEFINITIONS[mapLayer];
+  const activeLabels = mapLayer === "medianGrossRent" && rentBreaks
+    ? [
+        `Below ${money(rentBreaks[0])}`,
+        `${money(rentBreaks[0])}–${money(rentBreaks[1] - 1)}`,
+        `${money(rentBreaks[1])}–${money(rentBreaks[2] - 1)}`,
+        `${money(rentBreaks[2])}–${money(rentBreaks[3] - 1)}`,
+        `${money(rentBreaks[3])}+`,
+      ]
+    : activeDefinition?.labels ?? [];
+  const rentExtent = rentValues.length
+    ? `${money(Math.min(...rentValues))}–${money(Math.max(...rentValues))}`
+    : null;
+
   const districtNumber =
     selectedDistrict?.name.match(/\d+/)?.[0];
 
@@ -264,7 +359,15 @@ export default function Home() {
         <HawaiiMap
           chamber={chamber}
           mapLayer={mapLayer}
+          rentThresholds={rentBreaks ?? undefined}
           incomeByDistrict={incomeData[chamber]}
+          valuesByDistrict={Object.fromEntries(
+            Object.entries(extraMetrics[chamber]).map(([id, metrics]) => [id, {
+              ...metrics,
+              population: populationData[chamber][id] ?? null,
+              income: incomeData[chamber][id] ?? null,
+            }])
+          )}
           onDistrictSelect={handleDistrictSelect}
         />
       </div>
@@ -304,7 +407,15 @@ export default function Home() {
 
           <nav aria-label="Main navigation">
             {NAV_ITEMS.map((item) =>
-              item.label === "Data Layers" ? (
+              item.label === "AI Insights" ? (
+                <button key={item.label} type="button"
+                  className={`nav-item nav-button ${chatOpen ? "active" : ""}`}
+                  onClick={() => { setSidebarOpen(true); setChatOpen(true); }}
+                  title="AI Insights">
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </button>
+              ) : item.label === "Data Layers" ? (
                 <button
                   key={item.label}
                   type="button"
@@ -338,29 +449,14 @@ export default function Home() {
                     onChange={() => setMapLayer("boundaries")} />
                   Boundaries only
                 </label>
-                <label>
-                  <input type="radio" name="map-layer" checked={mapLayer === "income"}
-                    onChange={() => setMapLayer("income")} />
-                  Median household income
-                </label>
-                {mapLayer === "income" && (
-                  <div className="income-legend">
-                    <p>ANNUAL HOUSEHOLD INCOME</p>
-                    {[
-                      ["#ef4444", "Under $60k"],
-                      ["#f97316", "$60k–$79,999"],
-                      ["#facc15", "$80k–$99,999"],
-                      ["#22c55e", "$100k–$119,999"],
-                      ["#3b82f6", "$120k+"],
-                      ["#64748b", "No estimate"],
-                    ].map(([color, label]) => (
-                      <div className="legend-row" key={label}>
-                        <span style={{ backgroundColor: color }} />{label}
-                      </div>
-                    ))}
-                    <small>2024 ACS 5-Year · USD</small>
-                  </div>
-                )}
+                {(Object.entries(LAYER_DEFINITIONS) as [Exclude<MapLayer, "boundaries">, LayerDefinition][]).map(([id, definition]) => (
+                  <label key={id}>
+                    <input type="radio" name="map-layer" checked={mapLayer === id}
+                      onChange={() => setMapLayer(id)} />
+                    {definition.label}
+                  </label>
+                ))}
+
               </div>
             )}
           </nav>
@@ -478,6 +574,89 @@ export default function Home() {
             </div>
           </>
         )}
+      </aside>
+
+             {/* Contextual map legend: matches the same thresholds used by HawaiiMap. */}
+       {activeDefinition && (
+         <section className={`map-legend ${panelOpen ? "district-visible" : ""} ${chatOpen ? "chat-visible" : ""}`}
+           aria-label={`${activeDefinition.label} map legend`}>
+           <div className="map-legend-header">
+             <strong>{activeDefinition.label}</strong>
+             <span>2024 ACS 5-Year · {chamber}</span>
+           </div>
+           <div className="map-legend-scale" aria-label="Five color bands">
+             {activeLabels.map((label, index) => (
+               <div className="map-legend-band" key={`${index}-${label}`}>
+                 <span className="map-legend-swatch" style={{ backgroundColor: LAYER_COLORS[HIGH_IS_RED.includes(mapLayer) ? 4 - index : index] }} />
+                 <span className="map-legend-range">{label}</span>
+               </div>
+             ))}
+           </div>
+           <div className="map-legend-direction">
+             <span>← Lower {activeDefinition.unit}</span>
+             <span>Higher {activeDefinition.unit} →</span>
+           </div>
+           <p className="map-legend-explanation">{LAYER_CONTEXT[mapLayer as Exclude<MapLayer, "boundaries">]}</p>
+           <p className="map-legend-footnote">
+             {mapLayer === "medianGrossRent"
+               ? rentBreaks
+                 ? `Adaptive $100-rounded bands · Observed ${chamber} district range: ${rentExtent}. Relative to this chamber; not affordability rankings.`
+                 : "Waiting for enough valid district rent estimates; using the standard scale until data loads."
+               : "Fixed bands allow consistent comparison between House and Senate districts."}
+             {" · Gray = no estimate"}
+           </p>
+         </section>
+       )}
+
+{/* Compact AI assistant. Keeps its conversation when minimized. */}
+      {!chatOpen && (
+        <button type="button" className={`chat-launcher ${panelOpen ? "panel-shift" : ""}`}
+          onClick={() => setChatOpen(true)} aria-label="Open AI Insights assistant" title="Ask AI Insights">
+          <span aria-hidden="true">✧</span> Ask AI
+        </button>
+      )}
+      <aside className={`chat-panel ${chatOpen ? "visible" : ""} ${panelOpen ? "panel-shift" : ""}`}
+        aria-hidden={!chatOpen} aria-label="AI Insights assistant">
+        <div className="chat-heading">
+          <div><strong>✧ AI INSIGHTS</strong><p>Hawaiʻi district research assistant</p></div>
+          <button type="button" onClick={() => setChatOpen(false)} aria-label="Minimize AI Insights" title="Minimize chat">−</button>
+        </div>
+        <div className="chat-messages" aria-live="polite">
+          {chatMessages.length === 0 && (
+            <div className="chat-welcome">
+              <h2>Ask about Hawaiʻi districts</h2>
+              <p>Answers use 2024 ACS 5-Year Census estimates for House and Senate districts.</p>
+              {[
+                "Which five House districts have the highest poverty rates?",
+                "Compare House Districts 1 and 31.",
+                "Which Senate districts have the highest median household income?",
+              ].map((question) => (
+                <button key={question} type="button" onClick={() => setChatInput(question)}>{question}</button>
+              ))}
+            </div>
+          )}
+          {chatMessages.map((message, index) => (
+            <div key={index} className={`chat-bubble ${message.role}`}>
+              <span>{message.role === "user" ? "YOU" : "AI INSIGHTS"}</span>
+              <p>{message.content}</p>
+            </div>
+          ))}
+          {chatBusy && <p className="chat-status">Analyzing Census estimates...</p>}
+          {chatError && <p className="chat-error" role="alert">{chatError}</p>}
+        </div>
+        <form className="chat-form" onSubmit={sendChat}>
+          <textarea aria-label="Ask AI Insights" placeholder="Ask about districts, rankings, or comparisons..."
+            value={chatInput} onChange={(event) => setChatInput(event.target.value)}
+            maxLength={1200} rows={2} disabled={chatBusy}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }} />
+          <button type="submit" disabled={chatBusy || !chatInput.trim()}>{chatBusy ? "Working..." : "Send →"}</button>
+          <small>2024 ACS 5-Year Estimates · AI responses may contain errors; verify important figures.</small>
+        </form>
       </aside>
 
       <style jsx>{`
@@ -601,7 +780,8 @@ export default function Home() {
 
         .sidebar-content {
           height: 100%;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
           padding: 24px 14px;
         }
 
@@ -937,6 +1117,116 @@ export default function Home() {
           font-size: 12px;
           line-height: 1.7;
         }
+
+
+        .map-legend {
+          position: absolute;
+          z-index: 1090;
+          bottom: 18px;
+          left: calc(var(--sidebar-width) + (100% - var(--sidebar-width)) / 2);
+          transform: translateX(-50%);
+          width: min(590px, calc(100vw - var(--sidebar-width) - 40px));
+          box-sizing: border-box;
+          padding: 13px 16px 12px;
+          border-radius: 11px;
+          border: 1px solid #49515a;
+          background: rgba(23, 26, 30, 0.96);
+          box-shadow: 0 10px 35px rgba(0,0,0,.4);
+          pointer-events: auto;
+          transition: left .28s ease, width .28s ease;
+        }
+        .map-legend.district-visible {
+          left: calc(var(--sidebar-width) + (100% - var(--sidebar-width) - 382px) / 2);
+          width: min(550px, calc(100vw - var(--sidebar-width) - 410px));
+        }
+        .map-legend-header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+        .map-legend-header strong { font-size: 13px; }
+        .map-legend-header span { color: #a7adb4; font-size: 10px; text-align: right; }
+        .map-legend-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+        .map-legend-band { min-width: 0; }
+        .map-legend-swatch { display: block; height: 12px; border-radius: 2px; }
+        .map-legend-range { display: block; color: #d4d8dc; font-size: 10px; line-height: 1.35; text-align: center; margin-top: 5px; overflow-wrap: anywhere; }
+        .map-legend-direction { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; color: #b7bec5; font-size: 10px; }
+        .map-legend-explanation { border-top: 1px solid #3b4148; padding-top: 8px; margin: 9px 0 0; font-size: 11px; line-height: 1.45; color: #e0e3e6; }
+        .map-legend-footnote { margin: 5px 0 0; color: #a7adb4; font-size: 10px; line-height: 1.4; }
+        @media (max-width: 1100px) {
+          .map-legend.district-visible { left: calc(var(--sidebar-width) + 12px); transform: none; width: min(440px, calc(100vw - var(--sidebar-width) - 410px)); }
+        }
+        @media (max-width: 850px) {
+          .map-legend, .map-legend.district-visible {
+            left: calc(var(--sidebar-width) + 10px); transform: none;
+            width: min(460px, calc(100vw - var(--sidebar-width) - 20px));
+            bottom: 78px;
+          }
+        }
+        @media (max-width: 600px) {
+          .map-legend, .map-legend.district-visible { padding: 10px; bottom: 75px; }
+          .map-legend-range { font-size: 9px; }
+          .map-legend-header { flex-wrap: wrap; }
+        }
+
+        .chat-launcher {
+          position: absolute; z-index: 1202; right: 22px; bottom: 22px;
+          display: flex; align-items: center; gap: 9px; padding: 12px 17px;
+          border-radius: 999px; border: 1px solid #59616a; background: #30363c;
+          color: #f4f5f6; font: inherit; font-size: 13px; font-weight: 700;
+          box-shadow: 0 8px 28px rgba(0,0,0,.45); cursor: pointer;
+          transition: right .28s ease, background .2s ease;
+        }
+        .chat-launcher span { font-size: 19px; line-height: 1; }
+        .chat-launcher:hover { background: #424a52; }
+        .chat-launcher:focus-visible, .chat-heading button:focus-visible {
+          outline: 2px solid #e5e7eb; outline-offset: 3px;
+        }
+        .chat-panel {
+          position: absolute; z-index: 1201; right: 16px; bottom: 16px;
+          top: auto; height: min(380px, calc(100dvh - 104px));
+          width: min(340px, calc(100vw - 32px)); display: flex; flex-direction: column;
+          background: #1b1e21; border: 1px solid #383d42; border-radius: 12px;
+          box-shadow: 0 16px 48px rgba(0,0,0,.5); visibility: hidden;
+          opacity: 0; transform: translateY(16px);
+          pointer-events: none;
+          transition: right .28s ease, transform .2s ease, opacity .2s ease, visibility .2s ease;
+        }
+        .chat-panel.visible { visibility: visible; opacity: 1; transform: translateY(0); pointer-events: auto; }
+        /* Keep the district metrics readable while the assistant is open. */
+        .chat-panel.panel-shift { right: 382px; }
+        .chat-launcher.panel-shift { right: 388px; }
+        @media (max-width: 1040px) {
+          /* At narrower widths, place chat beside the sidebar rather than over district data. */
+          .chat-panel.panel-shift { right: auto; left: calc(var(--sidebar-width) + 24px); }
+          .chat-launcher.panel-shift { right: auto; left: calc(var(--sidebar-width) + 24px); }
+        }
+        @media (max-width: 760px) {
+          /* On phones there is not room for both panels side by side. */
+          .chat-panel.panel-shift { right: 8px; left: auto; }
+          .chat-launcher.panel-shift { right: 12px; left: auto; }
+        }
+        .chat-heading { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px;
+          border-bottom: 1px solid #383d42; }
+        .chat-heading strong { font-size: 13px; letter-spacing: 1px; }
+        .chat-heading p { margin-top: 6px; font-size: 11px; color: #a7adb4; }
+        .chat-heading button { color: #f4f5f6; background: transparent; border: 0; cursor: pointer; font-size: 18px; }
+        .chat-messages { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
+        .chat-welcome h2 { font-size: 19px; margin: 8px 0 10px; }
+        .chat-welcome p { font-size: 13px; line-height: 1.6; color: #a7adb4; margin-bottom: 18px; }
+        .chat-welcome button { display: block; width: 100%; text-align: left; background: #272b2f;
+          border: 1px solid #444a50; color: #e9ecef; padding: 12px; border-radius: 8px; cursor: pointer;
+          margin-bottom: 9px; font-size: 12px; line-height: 1.5; }
+        .chat-welcome button:hover { background: #343a40; }
+        .chat-bubble { border-radius: 10px; padding: 13px; background: #2b3035; }
+        .chat-bubble.user { background: #3a4046; margin-left: 26px; }
+        .chat-bubble span { color: #b6bdc3; font-size: 10px; font-weight: bold; letter-spacing: .7px; }
+        .chat-bubble p { margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+        .chat-status { font-size: 12px; color: #a7adb4; }
+        .chat-error { font-size: 12px; color: #ff9a9a; line-height: 1.5; }
+        .chat-form { border-top: 1px solid #383d42; padding: 10px; display: flex; flex-direction: column; gap: 9px; }
+        .chat-form textarea { max-height: 72px; background: #101214; border: 1px solid #4b5157; color: #f4f5f6;
+          font: inherit; font-size: 13px; line-height: 1.5; padding: 11px; border-radius: 8px; resize: vertical; }
+        .chat-form button { align-self: flex-end; background: #d6dbe0; color: #151719; font-weight: 700;
+          padding: 9px 18px; border: 0; border-radius: 7px; cursor: pointer; }
+        .chat-form button:disabled { opacity: .45; cursor: not-allowed; }
+        .chat-form small { color: #a7adb4; font-size: 10px; line-height: 1.4; }
 
         @media (max-width: 700px) {
           .topbar {

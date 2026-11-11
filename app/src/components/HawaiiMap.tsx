@@ -17,6 +17,9 @@ import type {
 import "leaflet/dist/leaflet.css";
 
 type Chamber = "House" | "Senate";
+type MapLayer = "boundaries" | "population" | "income" | "povertyRate" | "unemploymentRate" | "medianHomeValue" | "medianGrossRent" | "bachelorsOrHigherRate";
+type MetricValues = Record<Exclude<MapLayer, "boundaries">, number | null>;
+
 
 type HawaiiMapProps = {
   onDistrictSelect: (
@@ -24,8 +27,10 @@ type HawaiiMapProps = {
     chamber: Chamber
   ) => void;
   chamber: Chamber;
-  mapLayer: "boundaries" | "income";
+  mapLayer: MapLayer;
+  valuesByDistrict: Record<string, MetricValues>;
   incomeByDistrict: Record<string, number>;
+  rentThresholds?: number[];
 };
 
 const GIS_BASE =
@@ -45,19 +50,31 @@ const normalStyle: L.PathOptions = {
   fillOpacity: 0.02,
 };
 
-// Fixed, interpretable income bands (USD), rather than relative ranks.
-function incomeStyle(value: number | undefined): L.PathOptions {
-  const color = value === undefined ? "#64748b" :
-    value < 60000 ? "#ef4444" :
-    value < 80000 ? "#f97316" :
-    value < 100000 ? "#facc15" :
-    value < 120000 ? "#22c55e" : "#3b82f6";
+// Fixed bands make House/Senate comparisons consistent.
+// Poverty, unemployment and rent use blue for lower values and red for higher values.
+const thresholds: Record<Exclude<MapLayer, "boundaries">, number[]> = {
+  population: [22000, 26000, 30000, 35000],
+  income: [60000, 80000, 100000, 120000],
+  povertyRate: [5, 10, 15, 20],
+  unemploymentRate: [3, 5, 7, 10],
+  medianHomeValue: [500000, 700000, 900000, 1100000],
+  medianGrossRent: [1200, 1600, 2000, 2400],
+  bachelorsOrHigherRate: [20, 30, 40, 50],
+};
+const bandColors = ["#ef4444", "#f97316", "#facc15", "#22c55e", "#3b82f6"];
+function metricStyle(metric: MapLayer, value: number | null | undefined, rentThresholds?: number[]): L.PathOptions {
+  if (metric === "boundaries") return normalStyle;
+  const missing = value === null || value === undefined || !Number.isFinite(value) || value < 0;
+  const breaks = metric === "medianGrossRent" && rentThresholds?.length === 4 ? rentThresholds : thresholds[metric];
+  const band = missing ? 0 : breaks.findIndex((breakpoint) => value < breakpoint);
+  const colorIndex = band < 0 ? 4 : band;
+  const color = missing ? "#64748b" : bandColors[["povertyRate", "unemploymentRate", "medianGrossRent"].includes(metric) ? 4 - colorIndex : colorIndex];
   return {
     ...normalStyle,
     color: "#9ca3aa",
     opacity: 0.85,
     fillColor: color,
-    fillOpacity: value === undefined ? 0.06 : 0.52,
+    fillOpacity: missing ? 0.06 : 0.52,
   };
 }
 
@@ -214,6 +231,8 @@ export default function HawaiiMap({
   chamber,
   mapLayer,
   incomeByDistrict,
+  valuesByDistrict,
+  rentThresholds,
 }: HawaiiMapProps) {
 
   const [districts, setDistricts] =
@@ -232,13 +251,13 @@ export default function HawaiiMap({
   useEffect(() => {
     districtLayers.current.forEach((layer) => {
       const number = layerNumbers.current.get(layer);
-      const value = number ? incomeByDistrict[number] : undefined;
-      const base = mapLayer === "income" ? incomeStyle(value) : normalStyle;
+      const value = number ? (mapLayer === "income" ? incomeByDistrict[number] : mapLayer === "boundaries" ? null : valuesByDistrict[number]?.[mapLayer]) : null;
+      const base = metricStyle(mapLayer, value, rentThresholds);
       baseStyles.current.set(layer, base);
       layer.setStyle(layer === selectedLayer.current ? selectedStyle : base);
     });
     hoveredLayer.current = null;
-  }, [mapLayer, incomeByDistrict]);
+  }, [mapLayer, incomeByDistrict, valuesByDistrict, rentThresholds]);
 
   function resetHighlights() {
     districtLayers.current.forEach((layer) => {
@@ -360,11 +379,12 @@ return (
               key={`${chamber}-${districts.features.length}`}
               data={districts}
               style={(feature) => {
-                if (mapLayer !== "income") return normalStyle;
+                if (mapLayer === "boundaries") return normalStyle;
                 const name = getDistrictName(feature as Feature<Geometry>, chamber);
                 const districtNumber = name.match(/\d+/)?.[0];
-                const value = districtNumber ? incomeByDistrict[String(Number(districtNumber))] : undefined;
-                return incomeStyle(value);
+                const id = districtNumber ? String(Number(districtNumber)) : "";
+                const value = mapLayer === "income" ? incomeByDistrict[id] : valuesByDistrict[id]?.[mapLayer];
+                return metricStyle(mapLayer, value, rentThresholds);
               }}
               onEachFeature={(feature, layer) => {
                 const name = getDistrictName(
@@ -375,8 +395,9 @@ return (
                 const path = layer as L.Path;
                 districtLayers.current.add(path);
                 const districtNumber = name.match(/\d+/)?.[0];
-                const value = districtNumber ? incomeByDistrict[String(Number(districtNumber))] : undefined;
-                baseStyles.current.set(path, mapLayer === "income" ? incomeStyle(value) : normalStyle);
+                const id = districtNumber ? String(Number(districtNumber)) : "";
+                const value = mapLayer === "income" ? incomeByDistrict[id] : mapLayer === "boundaries" ? null : valuesByDistrict[id]?.[mapLayer];
+                baseStyles.current.set(path, metricStyle(mapLayer, value, rentThresholds));
                 if (districtNumber) layerNumbers.current.set(path, String(Number(districtNumber)));
 
                 layer.on("mouseover", () => {

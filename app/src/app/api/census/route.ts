@@ -1,150 +1,108 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type Chamber = "House" | "Senate";
 
-// ACS 2024 5-year detailed-table variables.
-const VARIABLES = [
-  "NAME",
-  "B01001_001E", // Total population
-  "B19013_001E", // Median household income
-  "B17001_001E", // Poverty universe
-  "B17001_002E", // Below poverty level
-  "B23025_003E", // Civilian labor force
-  "B23025_005E", // Unemployed civilian labor force
-  "B25077_001E", // Median owner-occupied home value
-  "B25064_001E", // Median gross rent
-  "B15003_001E", // Population age 25+ by educational attainment
-  "B15003_022E", // Bachelor's degree
-  "B15003_023E", // Master's degree
-  "B15003_024E", // Professional school degree
-  "B15003_025E", // Doctorate degree
+type Chamber = "House" | "Senate";
+type District = {
+  district: string;
+  population: number | null;
+  medianHouseholdIncome: number | null;
+  povertyRate: number | null;
+  unemploymentRate: number | null;
+  medianHomeValue: number | null;
+  medianGrossRent: number | null;
+  bachelorsOrHigherRate: number | null;
+};
+
+const METRICS = [
+  "population", "medianHouseholdIncome", "povertyRate", "unemploymentRate",
+  "medianHomeValue", "medianGrossRent", "bachelorsOrHigherRate",
 ] as const;
 
-type Metric = number | null;
-
-function validEstimate(raw: string | undefined): Metric {
-  if (raw === undefined || raw === null || raw.trim() === "") return null;
-  const value = Number(raw);
-  // ACS uses negative sentinel values for unavailable/suppressed estimates.
-  return Number.isFinite(value) && value >= 0 ? value : null;
+function rankings(districts: District[]) {
+  return Object.fromEntries(METRICS.map((metric) => {
+    const valid = districts
+      .filter((d) => typeof d[metric] === "number" && Number.isFinite(d[metric]))
+      .sort((a, b) => (b[metric] as number) - (a[metric] as number));
+    return [metric, { highestFive: valid.slice(0, 5).map((d) => ({ district: d.district, value: d[metric] })),
+      lowestFive: valid.slice(-5).reverse().map((d) => ({ district: d.district, value: d[metric] })) }];
+  }));
 }
 
-function percentage(numerator: Metric, denominator: Metric): Metric {
-  if (numerator === null || denominator === null || denominator <= 0) return null;
-  return Math.round((numerator / denominator) * 1000) / 10;
-}
-
-export async function GET(request: NextRequest) {
-  const apiKey = process.env.CENSUS_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "Census API key is not configured." },
-      { status: 500 }
-    );
+export async function POST(request: NextRequest) {
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: "OPENAI_API_KEY is missing from app/.env.local." }, { status: 500 });
   }
 
-  const chamberParam = request.nextUrl.searchParams.get("chamber") ?? "House";
-  if (chamberParam !== "House" && chamberParam !== "Senate") {
-    return NextResponse.json(
-      { error: "Chamber must be House or Senate." },
-      { status: 400 }
-    );
-  }
-  const chamber: Chamber = chamberParam;
-  const geography =
-    chamber === "House"
-      ? "state legislative district (lower chamber):*"
-      : "state legislative district (upper chamber):*";
+  let body: { message?: unknown; history?: unknown };
+  try { body = await request.json(); }
+  catch { return NextResponse.json({ error: "Invalid JSON request." }, { status: 400 }); }
 
-  const url = new URL("https://api.census.gov/data/2024/acs/acs5");
-  url.searchParams.set("get", VARIABLES.join(","));
-  url.searchParams.set("for", geography);
-  url.searchParams.set("in", "state:15");
-  url.searchParams.set("key", apiKey);
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  if (!message || message.length > 1200) {
+    return NextResponse.json({ error: "Enter a question up to 1,200 characters." }, { status: 400 });
+  }
+
+  const history = Array.isArray(body.history)
+    ? body.history.slice(-6).filter((m): m is { role: "user" | "assistant"; content: string } =>
+        !!m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.length <= 2000)
+    : [];
 
   try {
-    const response = await fetch(url, { cache: "no-store" });
+    const datasets = await Promise.all((["House", "Senate"] as Chamber[]).map(async (chamber) => {
+      const censusRequest = new NextRequest(new URL(`/api/census?chamber=${chamber}`, request.url));
+      const result = await getCensus(censusRequest);
+      if (!result.ok) throw new Error(`Census data unavailable for ${chamber}`);
+      const data = await result.json();
+      if (!Array.isArray(data.districts)) throw new Error(`Missing district data for ${chamber}`);
+      const districts = data.districts as District[];
+      return { chamber, districts, rankings: rankings(districts) };
+    }));
+
+    const instructions = [
+      "You are the District Intelligence research assistant for Hawaiʻi legislative districts.",
+      "Use ONLY the supplied 2024 ACS 5-Year Estimates dataset for numerical claims. Never invent values, sources, or causal explanations.",
+      "Both House and Senate districts are supplied. Clearly identify chamber and district number.",
+      "The rankings are precomputed from valid estimates; use them for top/bottom five questions.",
+      "Rates are percentages. Income and home value are USD; gross rent is USD per month. Population is a count.",
+      "For comparisons and rankings, quote relevant figures and distinguish observation from interpretation.",
+      "If a question cannot be answered from these seven indicators, say so and explain what data is missing.",
+      "These are survey estimates, not current live measurements. No margins of error are provided.",
+      "Be concise and readable. Cite the source in the answer as U.S. Census Bureau, 2024 ACS 5-Year Estimates.",
+      `Verified data: ${JSON.stringify(datasets)}`,
+    ].join("\n");
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        instructions,
+        input: [...history, { role: "user", content: message }],
+        max_output_tokens: 900,
+        store: false,
+      }),
+      cache: "no-store",
+    });
+
+    const result = await response.json();
     if (!response.ok) {
-      return NextResponse.json(
-        { error: "Census API request failed.", status: response.status },
-        { status: 502 }
-      );
+      console.error("OpenAI API error:", response.status, JSON.stringify(result).slice(0, 600));
+      return NextResponse.json({ error: response.status === 429
+        ? "API rate limit or billing limit reached. Check your OpenAI API billing."
+        : "AI request failed. Check your API key, billing, and model access." }, { status: 502 });
     }
 
-    const rawRows: string[][] = await response.json();
-    if (!Array.isArray(rawRows) || rawRows.length < 2 || !Array.isArray(rawRows[0])) {
-      return NextResponse.json(
-        { error: "Census returned no district data." },
-        { status: 502 }
-      );
-    }
-
-    const headers = rawRows[0];
-    const index = (variable: string) => headers.indexOf(variable);
-    const geographyColumn =
-      chamber === "House"
-        ? "state legislative district (lower chamber)"
-        : "state legislative district (upper chamber)";
-
-    if (index(geographyColumn) < 0 || VARIABLES.some((variable) => index(variable) < 0)) {
-      return NextResponse.json(
-        { error: "Census response is missing required columns." },
-        { status: 502 }
-      );
-    }
-
-    // Preserve the existing four-column response contract used by the UI:
-    // row[1] = metric, row[3] = district number.
-    const makeLegacyRows = (variable: string): string[][] =>
-      rawRows.map((row) => [
-        row[index("NAME")],
-        row[index(variable)],
-        row[index("state")],
-        row[index(geographyColumn)],
-      ]);
-
-    const rows = makeLegacyRows("B01001_001E");
-    const incomeRows = makeLegacyRows("B19013_001E");
-
-    const districts = rawRows.slice(1).map((row) => {
-      const get = (variable: string) => validEstimate(row[index(variable)]);
-      const educationCounts = [
-        get("B15003_022E"),
-        get("B15003_023E"),
-        get("B15003_024E"),
-        get("B15003_025E"),
-      ];
-      const educationTotal = educationCounts.every((value) => value !== null)
-        ? educationCounts.reduce<number>((sum, value) => sum + (value ?? 0), 0)
-        : null;
-
-      return {
-        name: row[index("NAME")],
-        district: String(Number(row[index(geographyColumn)])),
-        population: get("B01001_001E"),
-        medianHouseholdIncome: get("B19013_001E"),
-        povertyRate: percentage(get("B17001_002E"), get("B17001_001E")),
-        unemploymentRate: percentage(get("B23025_005E"), get("B23025_003E")),
-        medianHomeValue: get("B25077_001E"),
-        medianGrossRent: get("B25064_001E"),
-        bachelorsOrHigherRate: percentage(educationTotal, get("B15003_001E")),
-      };
-    });
-
-    return NextResponse.json({
-      incomeRows,
-      source: "U.S. Census Bureau",
-      dataset: "2024 ACS 5-Year Estimates",
-      metric: "Population, income, poverty, unemployment, housing, and education",
-      chamber,
-      rows,
-      districts,
-    });
+    const answer = Array.isArray(result.output)
+      ? result.output.flatMap((item: { content?: { type?: string; text?: string }[] }) =>
+          Array.isArray(item.content) ? item.content.filter((c) => c.type === "output_text").map((c) => c.text ?? "") : []).join("\n").trim()
+      : "";
+    if (!answer) return NextResponse.json({ error: "The model returned no text. Please retry." }, { status: 502 });
+    return NextResponse.json({ answer, source: "U.S. Census Bureau, 2024 ACS 5-Year Estimates" });
   } catch (error) {
-    console.error("Census API error:", error);
-    return NextResponse.json(
-      { error: "Unable to connect to Census API." },
-      { status: 502 }
-    );
+    console.error("AI Insights error:", error);
+    return NextResponse.json({ error: "Unable to load Census data or contact the AI service." }, { status: 502 });
   }
 }
