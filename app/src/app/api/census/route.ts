@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 
 type Chamber = "House" | "Senate";
@@ -30,19 +29,15 @@ export async function GET(request: NextRequest) {
       ? "state legislative district (lower chamber):*"
       : "state legislative district (upper chamber):*";
 
-  const url = new URL(
-    "https://api.census.gov/data/2024/acs/acs5"
-  );
+  const url = new URL("https://api.census.gov/data/2024/acs/acs5");
 
-  url.searchParams.set("get", "NAME,B01001_001E");
+  url.searchParams.set("get", "NAME,B01001_001E,B19013_001E");
   url.searchParams.set("for", geography);
   url.searchParams.set("in", "state:15");
   url.searchParams.set("key", apiKey);
 
   try {
-    const response = await fetch(url, {
-      cache: "no-store",
-    });
+    const response = await fetch(url, { cache: "no-store" });
 
     if (!response.ok) {
       return NextResponse.json(
@@ -63,12 +58,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Preserve the original four-column rows so existing dashboard
+    // population parsing (district code at index 3) keeps working.
+    const populationRows = rows.map((row) =>
+      [row[0], row[1], row[3], row[4]]
+    );
+
+    const incomeRows = rows.map((row) =>
+      [row[0], row[2], row[3], row[4]]
+    );
+
     return NextResponse.json({
+      incomeRows,
       source: "U.S. Census Bureau",
       dataset: "2024 ACS 5-Year Estimates",
-      metric: "Estimated total population",
+      metric: "Estimated total population and median household income",
       chamber,
-      rows,
+      rows: populationRows,
     });
   } catch (error) {
     console.error("Census API error:", error);
