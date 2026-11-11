@@ -11,9 +11,7 @@ type SelectedDistrict = {
   chamber: Chamber;
 };
 
-type DistrictPopulation = {
-  [districtNumber: string]: number;
-};
+type DistrictPopulation = Record<string, number>;
 
 const HawaiiMap = dynamic(
   () => import("../components/HawaiiMap"),
@@ -29,19 +27,33 @@ export default function Home() {
   const [selectedDistrict, setSelectedDistrict] =
     useState<SelectedDistrict | null>(null);
 
-  const [populationData, setPopulationData] =
-    useState<DistrictPopulation>({});
+  const [populationData, setPopulationData] = useState<
+    Record<Chamber, DistrictPopulation>
+  >({
+    House: {},
+    Senate: {},
+  });
 
-  const [populationStatus, setPopulationStatus] =
-    useState<"loading" | "ready" | "error">("loading");
+  const [populationStatus, setPopulationStatus] = useState<
+    Record<Chamber, "loading" | "ready" | "error">
+  >({
+    House: "loading",
+    Senate: "loading",
+  });
 
   useEffect(() => {
-    async function loadPopulation() {
+    let cancelled = false;
+
+    async function loadPopulation(selectedChamber: Chamber) {
       try {
-        const response = await fetch("/api/census");
+        const response = await fetch(
+          `/api/census?chamber=${selectedChamber}`
+        );
 
         if (!response.ok) {
-          throw new Error("Census request failed");
+          throw new Error(
+            `Census request failed for ${selectedChamber}`
+          );
         }
 
         const data = await response.json();
@@ -58,21 +70,45 @@ export default function Home() {
 
           if (
             districtNumber !== "NaN" &&
-            Number.isFinite(value)
+            Number.isFinite(value) &&
+            value >= 0
           ) {
             population[districtNumber] = value;
           }
         }
 
-        setPopulationData(population);
-        setPopulationStatus("ready");
+        if (!cancelled) {
+          setPopulationData((previous) => ({
+            ...previous,
+            [selectedChamber]: population,
+          }));
+
+          setPopulationStatus((previous) => ({
+            ...previous,
+            [selectedChamber]: "ready",
+          }));
+        }
       } catch (error) {
-        console.error("Census loading failed:", error);
-        setPopulationStatus("error");
+        console.error(
+          `Census loading failed for ${selectedChamber}:`,
+          error
+        );
+
+        if (!cancelled) {
+          setPopulationStatus((previous) => ({
+            ...previous,
+            [selectedChamber]: "error",
+          }));
+        }
       }
     }
 
-    loadPopulation();
+    loadPopulation("House");
+    loadPopulation("Senate");
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function handleChamberChange(nextChamber: Chamber) {
@@ -94,21 +130,27 @@ export default function Home() {
   const districtNumber =
     selectedDistrict?.name.match(/\d+/)?.[0];
 
+  const selectedChamber = selectedDistrict?.chamber;
+
   const population =
-    selectedDistrict?.chamber === "House" && districtNumber
-      ? populationData[String(Number(districtNumber))]
+    selectedChamber && districtNumber
+      ? populationData[selectedChamber][
+          String(Number(districtNumber))
+        ]
       : undefined;
 
   function getPopulationDisplay() {
-    if (selectedDistrict?.chamber === "Senate") {
-      return "Senate population integration pending";
+    if (!selectedChamber) {
+      return "Select a district";
     }
 
-    if (populationStatus === "loading") {
+    const status = populationStatus[selectedChamber];
+
+    if (status === "loading") {
       return "Loading...";
     }
 
-    if (populationStatus === "error") {
+    if (status === "error") {
       return "Census API unavailable";
     }
 
@@ -243,21 +285,21 @@ export default function Home() {
                   marginTop: "12px",
                 }}
               >
-                <strong>Estimated Population (2024):</strong>{" "}
+                <strong>
+                  Estimated Population (2024):
+                </strong>{" "}
                 {getPopulationDisplay()}
               </p>
 
-              {selectedDistrict.chamber === "House" && (
-                <p
-                  style={{
-                    color: "#64748b",
-                    marginTop: "12px",
-                  }}
-                >
-                  Source: U.S. Census Bureau,
-                  2024 ACS 5-Year Estimates.
-                </p>
-              )}
+              <p
+                style={{
+                  color: "#64748b",
+                  marginTop: "12px",
+                }}
+              >
+                Source: U.S. Census Bureau,
+                2024 ACS 5-Year Estimates.
+              </p>
             </div>
           ) : (
             <p
