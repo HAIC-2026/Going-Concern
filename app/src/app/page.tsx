@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 const HawaiiMap = dynamic(
@@ -12,10 +12,41 @@ const HawaiiMap = dynamic(
   }
 );
 
+type DistrictPopulation = {
+  [districtNumber: string]: number;
+};
+
 export default function Home() {
   const [selectedDistrict, setSelectedDistrict] =
     useState<string | null>(null);
 
+    const [populationData, setPopulationData] =
+  useState<DistrictPopulation>({});
+useEffect(() => {
+  async function loadPopulation() {
+    try {
+      const response = await fetch("/api/census");
+
+      if (!response.ok) {
+        throw new Error("Unable to load Census data");
+      }
+
+      const data = await response.json();
+      const population: DistrictPopulation = {};
+
+      for (const row of data.rows.slice(1)) {
+        const districtNumber = String(Number(row[3]));
+        population[districtNumber] = Number(row[1]);
+      }
+
+      setPopulationData(population);
+    } catch (error) {
+      console.error("Census population loading failed:", error);
+    }
+  }
+
+  loadPopulation();
+}, []);
   return (
     <main
       style={{
@@ -98,10 +129,23 @@ export default function Home() {
                 Community Demographics
               </h4>
 
-              <p style={{ color: "#64748b", marginTop: "12px" }}>
-                Population, income, household composition, and other
-                verified statistics will appear here once connected.
-              </p>
+             <p style={{ color: "#64748b", marginTop: "12px" }}>
+  <strong>Estimated Population (2024):</strong>{" "}
+  {(() => {
+    const districtNumber = selectedDistrict?.match(/\d+/)?.[0];
+    const population = districtNumber
+      ? populationData[districtNumber]
+      : undefined;
+
+    return population !== undefined
+      ? population.toLocaleString()
+      : "Population data unavailable";
+  })()}
+</p>
+
+<p style={{ color: "#64748b", marginTop: "12px" }}>
+  Source: U.S. Census Bureau, 2024 ACS 5-Year Estimates.
+</p>
             </div>
           ) : (
             <p style={{ marginTop: "24px", color: "#64748b" }}>
