@@ -1,20 +1,29 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
-  Popup,
   GeoJSON,
+  useMap,
 } from "react-leaflet";
-import L from "leaflet";
-import type { FeatureCollection } from "geojson";
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+} from "geojson";
 import "leaflet/dist/leaflet.css";
 
-// Official State of Hawaii GIS API
 type Chamber = "House" | "Senate";
+
+type HawaiiMapProps = {
+  onDistrictSelect: (
+    districtName: string,
+    chamber: Chamber
+  ) => void;
+  onChamberChange: (chamber: Chamber) => void;
+};
 
 const GIS_BASE =
   "https://geodata.hawaii.gov/arcgis/rest/services/AdminBnd/MapServer";
@@ -32,13 +41,119 @@ const markerIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-type HawaiiMapProps = {
-  onDistrictSelect: (
-    districtName: string,
-    chamber: Chamber
-  ) => void;
-  onChamberChange: (chamber: Chamber) => void;
+const normalStyle: L.PathOptions = {
+  color: "#2563eb",
+  weight: 1.2,
+  opacity: 0.8,
+  fillColor: "#3b82f6",
+  fillOpacity: 0.15,
 };
+
+const hoverStyle: L.PathOptions = {
+  color: "#0284c7",
+  weight: 2.5,
+  opacity: 1,
+  fillColor: "#38bdf8",
+  fillOpacity: 0.45,
+};
+
+const selectedStyle: L.PathOptions = {
+  color: "#1d4ed8",
+  weight: 3,
+  opacity: 1,
+  fillColor: "#2563eb",
+  fillOpacity: 0.35,
+};
+
+function getDistrictName(
+  feature: Feature<Geometry>,
+  chamber: Chamber
+) {
+  const properties = feature.properties ?? {};
+
+  return String(
+    chamber === "House"
+      ? properties.House_Name ??
+          properties.house_name ??
+          "Hawaii House District"
+      : properties.Senate_Name ??
+          properties.senate_name ??
+          "Hawaii Senate District"
+  );
+}
+
+function DistrictLabels({
+  districts,
+  chamber,
+}: {
+  districts: FeatureCollection;
+  chamber: Chamber;
+}) {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+
+  useEffect(() => {
+    function updateZoom() {
+      setZoom(map.getZoom());
+    }
+
+    map.on("zoomend", updateZoom);
+
+    return () => {
+      map.off("zoomend", updateZoom);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    if (zoom < 9) return;
+
+    const labels: L.Marker[] = [];
+
+    districts.features.forEach((feature) => {
+      if (!feature.geometry) return;
+
+      const name = getDistrictName(feature, chamber);
+      const number = name.match(/\d+/)?.[0];
+
+      if (!number) return;
+
+      const layer = L.geoJSON(feature);
+      const bounds = layer.getBounds();
+
+      if (!bounds.isValid()) return;
+
+      const center = bounds.getCenter();
+
+      const label = L.marker(center, {
+        interactive: false,
+        icon: L.divIcon({
+          className: "",
+          html: `
+            <div style="
+              font-size:12px;
+              font-weight:700;
+              color:#0f172a;
+              text-shadow:0 1px 2px white;
+              text-align:center;
+              width:28px;
+            ">${number}</div>
+          `,
+          iconSize: [28, 20],
+          iconAnchor: [14, 10],
+        }),
+      });
+
+      label.addTo(map);
+      labels.push(label);
+    });
+
+    return () => {
+      labels.forEach((label) => map.removeLayer(label));
+    };
+  }, [map, districts, chamber, zoom]);
+
+  return null;
+}
 
 export default function HawaiiMap({
   onDistrictSelect,
@@ -52,6 +167,8 @@ export default function HawaiiMap({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const selectedLayer = useRef<L.Path | null>(null);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -59,6 +176,7 @@ export default function HawaiiMap({
       setLoading(true);
       setError("");
       setDistricts(null);
+      selectedLayer.current = null;
 
       try {
         const response = await fetch(
@@ -102,13 +220,31 @@ export default function HawaiiMap({
   function changeChamber(nextChamber: Chamber) {
     if (nextChamber === chamber) return;
 
+    selectedLayer.current = null;
     setChamber(nextChamber);
     onChamberChange(nextChamber);
   }
 
+  function selectDistrict(
+    name: string,
+    layer: L.Path
+  ) {
+    if (selectedLayer.current) {
+      selectedLayer.current.setStyle(normalStyle);
+    }
+
+    selectedLayer.current = layer;
+    layer.setStyle(selectedStyle);
+
+    if ("bringToFront" in layer) {
+      layer.bringToFront();
+    }
+
+    onDistrictSelect(name, chamber);
+  }
+
   return (
     <div>
-      {/* House / Senate selector */}
       <div
         style={{
           display: "flex",
@@ -184,45 +320,46 @@ export default function HawaiiMap({
         />
 
         {districts && (
-          <GeoJSON
-            key={`${chamber}-${districts.features.length}`}
-            data={districts}
-            style={{
-              color: "#64748b",
-              weight: 1,
-              fillColor: "#60a5fa",
-              fillOpacity: 0.10,
-            }}
-            onEachFeature={(feature, layer) => {
-              const properties = feature.properties ?? {};
+          <>
+            <GeoJSON
+              key={`${chamber}-${districts.features.length}`}
+              data={districts}
+              style={normalStyle}
+              onEachFeature={(feature, layer) => {
+                const name = getDistrictName(
+                  feature as Feature<Geometry>,
+                  chamber
+                );
 
-              const name = String(
-                chamber === "House"
-                  ? properties.House_Name ??
-                      properties.house_name ??
-                      "Hawaii House District"
-                  : properties.Senate_Name ??
-                      properties.senate_name ??
-                      "Hawaii Senate District"
-              );
+                const path = layer as L.Path;
 
-              layer.bindPopup(
-                `<strong>${name}</strong><br/>Official 2022 ${chamber} district boundary`
-              );
+                layer.on("mouseover", () => {
+                  if (selectedLayer.current !== path) {
+                    path.setStyle(hoverStyle);
+                    path.bringToFront();
+                  }
+                });
 
-              layer.on("click", () => {
-                onDistrictSelect(name, chamber);
-              });
-            }}
-          />
+                layer.on("mouseout", () => {
+                  if (selectedLayer.current !== path) {
+                    path.setStyle(normalStyle);
+                  }
+                });
+
+                layer.on("click", () => {
+                  selectDistrict(name, path);
+                });
+              }}
+            />
+
+            <DistrictLabels
+              districts={districts}
+              chamber={chamber}
+            />
+          </>
         )}
 
-        <Marker
-          position={[21.3099, -157.8581]}
-          icon={markerIcon}
-        >
-          <Popup>Honolulu, Oʻahu</Popup>
-        </Marker>
+      
       </MapContainer>
 
       <p
