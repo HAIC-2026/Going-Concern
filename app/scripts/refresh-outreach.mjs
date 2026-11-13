@@ -23,9 +23,10 @@ const year=await vintage();console.log("Verified ACS vintage",year);
 const [house,senate,counties,state]=await Promise.all([
  rows(year,GEO.House+":*","state:15"),rows(year,GEO.Senate+":*","state:15"),rows(year,"county:*","state:15"),rows(year,"state:15","")
 ]);
-if(house.length!==51||senate.length!==25||counties.length!==4||state.length!==1)throw Error("Unexpected geographic row counts");
+if(house.length!==51||senate.length!==25||counties.length<4||state.length!==1||["001","003","007","009"].some(c=>!counties.some(row=>row.county===c)))throw Error("Unexpected geographic row counts");
 const districts=[...house.map(r=>one(r,"district",String(Number(r[GEO.House])),"House")),...senate.map(r=>one(r,"district",String(Number(r[GEO.Senate])),"Senate"))];
 const snapshot={vintage:year,fetchedAt:new Date().toISOString(),dataset:"ACS 5-Year Subject S2201",geographyVintage:"2022 legislative reapportionment geography",
  state:one(state[0],"state","15"),counties:counties.map(r=>one(r,"county",r.county)),districts,
  validations:{metadataVerified:true,districtCounts:{House:51,Senate:25},countyMappingMethod:"Office of Elections 2022 district allocation; House 1–8 Hawaiʻi, 9–14 Maui, 15–17 Kauaʻi, 18–51 Honolulu; Senate 1–4 Hawaiʻi, 5–7 Maui, 8 Kauaʻi, 9–25 Honolulu."}};
 const dest=path.join(process.cwd(),"src","data","outreach-cache.json");await mkdir(path.dirname(dest),{recursive:true});await writeFile(dest,JSON.stringify(snapshot,null,2)+"\n");console.log("Saved",dest,"districts:",snapshot.districts.length);
+const biggest=[...snapshot.districts].filter(d=>d.snap.notReceiving.estimate!=null).sort((a,b)=>b.snap.notReceiving.estimate-a.snap.notReceiving.estimate)[0];if(biggest)console.log("Largest observed SNAP nonreceipt count:",biggest.chamber,"District",biggest.code,biggest.snap.notReceiving.estimate,"90% MOE",biggest.snap.notReceiving.moe);
