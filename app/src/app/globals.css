@@ -47,3 +47,263 @@ a {
     color-scheme: dark;
   }
 }
+/* Hide application controls during first-time onboarding */
+body:has([class*="onboardingBackdrop"]) .sidebar,
+body:has([class*="onboardingBackdrop"]) .topbar,
+body:has([class*="onboardingBackdrop"]) .chat-launcher,
+body:has([class*="onboardingBackdrop"]) .chat-panel {
+  visibility: hidden !important;
+}
+
+/* GC consolidated scene & navigation — replaces all prior patch cascades. */
+
+
+
+/* The same full-viewport image paints beneath each floating glass sidebar.
+   A fixed image attachment prevents the narrow sidebar from cropping its own
+   unrelated photo, which was making it read as a solid column. */
+.workspace.vision-home .sidebar {
+  position: absolute !important;
+  top: 10px !important;
+  bottom: 10px !important;
+  left: 8px !important;
+  height: auto !important;
+  width: calc(var(--sidebar-width) - 16px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255,255,255,.63) !important;
+  overflow: visible !important;
+  isolation: isolate;
+  backdrop-filter: blur(13px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(13px) saturate(1.12) !important;
+  box-shadow: 0 14px 30px rgba(8,24,34,.16), inset 0 1px rgba(255,255,255,.22) !important;
+}
+.workspace.vision-home.vision-day .sidebar {
+  color: #103d3a !important;
+  border-color: rgba(243,255,250,.84) !important;
+}
+.workspace.vision-home.vision-night .sidebar {
+  color: #f7efff !important;
+  border-color: rgba(211,178,252,.51) !important;
+}
+.workspace.vision-home .sidebar-content {
+  height: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  border-radius: 20px !important;
+  overflow-x: hidden !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+.workspace.vision-home.sidebar-expanded .sidebar-content {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  padding-top: 112px !important;
+  padding-bottom: 56px !important;
+}
+.workspace.vision-home.sidebar-expanded .sidebar-content > nav { flex-shrink: 0 !important; }
+.workspace.vision-home.sidebar-expanded .sidebar .sources {
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  flex-shrink: 0 !important;
+}
+/* Keep one island-chain silhouette at the top, never botanical art below it. */
+.workspace.vision-home.sidebar-expanded .sidebar-content::before {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  top: 10px !important;
+  left: 50% !important;
+  width: 168px !important;
+  height: 92px !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  background: url('/gc-island-chain-top.png') center / contain no-repeat !important;
+}
+.workspace.vision-home.vision-day.sidebar-expanded .sidebar-content::before {
+  opacity: .95 !important;
+  filter: drop-shadow(0 1px 3px rgba(232,255,249,.55)) !important;
+}
+.workspace.vision-home.vision-night.sidebar-expanded .sidebar-content::before {
+  opacity: .87 !important;
+  filter: hue-rotate(112deg) brightness(1.65) !important;
+}
+.workspace.vision-home .sidebar-content::after { display: none !important; content: none !important; }
+.workspace.vision-home.sidebar-collapsed .sidebar-content::before,
+.workspace.vision-home.sidebar-collapsed .sidebar-content::after {
+  display: none !important;
+  content: none !important;
+}
+.workspace.vision-home.sidebar-collapsed .sidebar-content {
+  padding-top: 22px !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+.workspace.vision-home .sidebar .collapse-handle {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  right: -19px !important;
+  top: 50% !important;
+  z-index: 2500 !important;
+  transform: translateY(-50%) !important;
+}
+.workspace.vision-home.vision-day .collapse-handle {
+  background: rgba(213,247,237,.86) !important;
+  color: #075d56 !important;
+  border-color: rgba(245,255,250,.86) !important;
+}
+.workspace.vision-home.vision-night .collapse-handle {
+  background: rgba(47,29,84,.83) !important;
+  color: #f2d9ff !important;
+  border-color: rgba(193,154,237,.65) !important;
+}
+.workspace.vision-home.vision-day .section-label,
+.workspace.vision-home.vision-day .nav-item:not(.active),
+.workspace.vision-home.vision-day .nav-label {
+  color: #104c46 !important;
+  text-shadow: none !important;
+}
+.workspace.vision-home.vision-night .section-label,
+.workspace.vision-home.vision-night .nav-item:not(.active) { color:#eadcf9 !important; }
+.workspace.vision-home.vision-day .nav-item.active {
+  background: rgba(5,118,105,.82) !important;
+  border-color: rgba(241,255,250,.85) !important;
+  color: #fff !important;
+}
+.workspace.vision-home.vision-night .nav-item.active {
+  background: rgba(127,73,191,.66) !important;
+  border-color: rgba(231,196,255,.76) !important;
+  color: #fff !important;
+}
+.workspace.vision-home .nav-item.active .nav-label { color:#fff !important; }
+.workspace.vision-home .nav-item.disabled { opacity: .58 !important; }
+.workspace.vision-home.vision-day .sidebar .sources {
+  background: rgba(220,251,241,.48) !important;
+  border: 1px solid rgba(249,255,253,.76) !important;
+  color: #17483f !important;
+  backdrop-filter: blur(10px);
+}
+.workspace.vision-home.vision-day .sidebar .sources * { color:#17483f !important; }
+.workspace.vision-home.vision-night .sidebar .sources {
+  background: rgba(67,45,113,.40) !important;
+  border: 1px solid rgba(208,174,250,.39) !important;
+  color: #f3e6ff !important;
+  backdrop-filter: blur(10px);
+}
+.workspace.vision-home .gc-theme-switch-wrap {
+  left: 0 !important;
+  bottom: 12px !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+.workspace.vision-home .gc-theme-switch {
+  width:72px !important;
+  height:29px !important;
+  min-height:29px !important;
+  padding:0 7px !important;
+  border-radius:999px !important;
+  gap:6px !important;
+  font-size:0 !important;
+}
+.workspace.vision-home .gc-theme-switch svg {
+  width:14px;
+  height:14px;
+  stroke:currentColor;
+  stroke-width:1.8;
+  fill:none;
+}
+.workspace.vision-home .gc-theme-switch .gc-theme-knob {
+  top:3px !important;
+  left:4px !important;
+  width:26px !important;
+  height:21px !important;
+}
+.workspace.vision-home .gc-theme-switch .gc-theme-knob.day {
+  transform:translateX(36px) !important;
+  background:linear-gradient(120deg,#0c9989,#25b7a2) !important;
+}
+.workspace.vision-home.vision-day .gc-theme-switch {
+  color:#075b52 !important;
+  background:rgba(212,249,239,.68) !important;
+  border-color:rgba(20,112,93,.35) !important;
+}
+.workspace.vision-home.vision-night .gc-theme-switch {
+  color:#e9cbff !important;
+  background:rgba(48,27,87,.74) !important;
+  border-color:rgba(181,141,237,.54) !important;
+}
+.workspace.vision-home.sidebar-collapsed .gc-theme-switch {width:46px !important;padding:0 4px !important;}
+.workspace.vision-home.sidebar-collapsed .gc-theme-switch .gc-theme-knob {width:19px !important;left:2px !important;}
+.workspace.vision-home.sidebar-collapsed .gc-theme-switch .gc-theme-knob.day {transform:translateX(22px) !important;}
+.workspace.vision-home .leaflet-control-zoom {display:none !important;}
+.workspace.vision-home.vision-day .chat-launcher {
+  background:rgba(7,125,112,.80) !important;
+  border-color:rgba(223,255,243,.78) !important;
+  color:#fff !important;
+}
+.workspace.vision-home.vision-day .chat-panel {
+  background:rgba(210,247,237,.66) !important;
+  border-color:rgba(242,255,252,.76) !important;
+  color:#073f3e !important;
+  backdrop-filter:blur(16px) !important;
+}
+.workspace.vision-home.vision-night .chat-launcher {background:rgba(86,49,135,.76) !important;}
+@media(max-width:750px){
+  .workspace.vision-home .sidebar {top:6px !important;bottom:6px !important;left:4px !important;width:calc(var(--sidebar-width) - 8px) !important;border-radius:14px !important;}
+  .workspace.vision-home .sidebar-content {border-radius:14px !important;}
+}
+
+/* GC ALIGNED SHARED BACKDROP V1 — one image plane, no black gutters.
+   body fills the outer 8px; workspace fills all of Home; the sidebar is glass only. */
+body:has(.workspace.vision-home.vision-day) {background:#177a87 url('/gc-diamondhead-day.png') center top / cover fixed no-repeat !important;}
+body:has(.workspace.vision-home.vision-night) {background:#16142d url('/gc-diamondhead-evening.png') center top / cover fixed no-repeat !important;}
+.workspace.vision-home.vision-day {background:#177a87 url('/gc-diamondhead-day.png') center top / cover fixed no-repeat !important;}
+.workspace.vision-home.vision-night {background:#16142d url('/gc-diamondhead-evening.png') center top / cover fixed no-repeat !important;}
+/* The decorative Leaflet map was covering the narrow gutter with dark pixels. */
+.workspace.vision-home .map-canvas {display:none !important;}
+.workspace.vision-home .sidebar {background-image:none !important;outline:none !important;}
+.workspace.vision-home.vision-day .sidebar {background:linear-gradient(155deg,rgba(153,226,214,.32),rgba(44,150,137,.25)) !important;}
+.workspace.vision-home.vision-night .sidebar {background:linear-gradient(155deg,rgba(65,46,117,.35),rgba(32,29,82,.25)) !important;}
+.workspace.vision-home .sidebar-content {background:none !important;}
+
+/* GC MENU PROFILE POLISH V1: slightly more opaque frosted menu, no WORKSPACE heading */
+.workspace.vision-home .sidebar .section-label {display:none!important;}
+.workspace.vision-home.vision-day .sidebar {
+  background:linear-gradient(145deg,rgba(170,232,221,.57),rgba(77,165,153,.51))!important;
+  backdrop-filter:blur(18px) saturate(1.12)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.12)!important;
+}
+.workspace.vision-home.vision-night .sidebar {
+  background:linear-gradient(145deg,rgba(52,35,101,.62),rgba(30,25,73,.57))!important;
+  backdrop-filter:blur(18px) saturate(1.12)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.12)!important;
+}
+.workspace.vision-home.sidebar-expanded .sidebar-content > nav {flex-shrink:0!important;}
+.workspace.vision-home.sidebar-expanded .sidebar .gc-profile-nav {
+  margin-top:auto!important;
+  width:calc(100% - 4px);
+  margin-left:2px;
+  min-height:39px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.5);
+  background:rgba(225,255,246,.20);
+  color:inherit;
+  font:600 12px Arial,Helvetica,sans-serif;
+  cursor:pointer;
+  display:flex;align-items:center;gap:10px;text-align:left;
+  padding:9px 12px;
+  backdrop-filter:blur(10px);
+  flex-shrink:0;
+}
+.workspace.vision-home.vision-night .gc-profile-nav {background:rgba(148,97,210,.17);border-color:rgba(215,173,252,.35);color:#f6eaff;}
+.workspace.vision-home.vision-day .gc-profile-nav {background:rgba(214,251,242,.25);border-color:rgba(244,255,250,.68);color:#0b5149;}
+.workspace.vision-home .gc-profile-nav:hover {filter:brightness(1.1);background:rgba(205,245,235,.34)}
+.workspace.vision-home .gc-profile-nav:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.workspace.vision-home .gc-profile-nav-icon{font-size:17px;line-height:1}
+.workspace.vision-home.sidebar-expanded .sidebar .sources {margin-top:10px!important;}
+.workspace.vision-home.sidebar-collapsed .gc-profile-nav {display:none!important;}
+/* Keep the top island graphic's spacing while omitting the old heading. */
+.workspace.vision-home.sidebar-expanded .sidebar-content > nav {margin-top:7px;}

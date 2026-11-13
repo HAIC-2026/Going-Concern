@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-
+import HomeDashboard from "../components/HomeDashboard";
 type Chamber = "House" | "Senate";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type MapLayer = "boundaries" | "population" | "income" | "povertyRate" | "unemploymentRate" | "medianHomeValue" | "medianGrossRent" | "bachelorsOrHigherRate";
@@ -79,14 +79,18 @@ const HawaiiMap = dynamic(
 );
 
 const NAV_ITEMS = [
-  { icon: "◈", label: "District Explorer", active: true },
+  { icon: "⌂", label: "Home", active: false },
+  { icon: "◈", label: "Map View", active: false },
   { icon: "▤", label: "Data Layers", active: false },
   { icon: "▥", label: "Compare Districts", active: false },
-  { icon: "✧", label: "AI Insights", active: false },
 ];
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+ const [homeOpen, setHomeOpen] = useState(true);
+  const [gcTheme, setGcTheme] = useState<"night" | "day">("day");
+  useEffect(() => { try { if (localStorage.getItem("gc-color-mode") === "day") setGcTheme("day"); } catch {} }, []);
+  const toggleGcTheme = () => setGcTheme(current => { const next = current === "night" ? "day" : "night"; try { localStorage.setItem("gc-color-mode", next); } catch {} return next; });
   const [chamber, setChamber] = useState<Chamber>("House");
   const [selectedDistrict, setSelectedDistrict] =
     useState<SelectedDistrict | null>(null);
@@ -350,7 +354,7 @@ export default function Home() {
 
   return (
     <main
-      className={`workspace ${
+      className={`workspace ${homeOpen ? "vision-home" : ""} ${homeOpen ? (gcTheme === "day" ? "vision-day" : "vision-night") : ""} ${
         sidebarOpen ? "sidebar-expanded" : "sidebar-collapsed"
       }`}
     >
@@ -372,6 +376,18 @@ export default function Home() {
         />
       </div>
 
+      {homeOpen && (
+        <HomeDashboard
+          chamber={chamber}
+          populations={populationData[chamber]}
+          incomes={incomeData[chamber]}
+          details={extraMetrics[chamber]}
+          onChamberChange={handleChamberChange}
+          onMap={() => setHomeOpen(false)}
+          onAskAI={() => { setChatOpen(true); }}
+          mode={gcTheme}
+        />
+      )}
       {/* Header */}
       <header className="topbar">
         <div className="brand">
@@ -406,8 +422,27 @@ export default function Home() {
           </p>
 
           <nav aria-label="Main navigation">
-            {NAV_ITEMS.map((item) =>
-              item.label === "AI Insights" ? (
+            {NAV_ITEMS.filter(item => !(homeOpen && item.label === "Data Layers")).map((item) =>
+              item.label === "Home" ? (
+                <button key={item.label} type="button"
+                  className={`nav-item nav-button ${homeOpen ? "active" : ""}`}
+                  onClick={() => { setHomeOpen(true); setLayersOpen(false); }}>
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </button>
+              ) : item.label === "Map View" ? (
+                <button key={item.label} type="button"
+                  className={`nav-item nav-button ${!homeOpen ? "active" : ""}`}
+                  onClick={() => setHomeOpen(false)}>
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </button>
+              ) : /* gc-analytics-studio-nav-v1 */ item.label === "Compare Districts" ? (
+                <a key={item.label} href="/analytics" className="nav-item nav-button" title="Compare districts in Analytics Studio">
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">Compare Districts</span>
+                </a>
+              ) : item.label === "AI Insights" ? (
                 <button key={item.label} type="button"
                   className={`nav-item nav-button ${chatOpen ? "active" : ""}`}
                   onClick={() => { setSidebarOpen(true); setChatOpen(true); }}
@@ -415,11 +450,11 @@ export default function Home() {
                   <span className="nav-icon">{item.icon}</span>
                   <span className="nav-label">{item.label}</span>
                 </button>
-              ) : item.label === "Data Layers" ? (
+              ) : item.label === "Data Layers" && !homeOpen ? (
                 <button
                   key={item.label}
                   type="button"
-                  className={`nav-item nav-button ${layersOpen ? "active" : ""}`}
+                  className="nav-item nav-button"
                   onClick={() => {
                     setSidebarOpen(true);
                     setLayersOpen((open) => !open);
@@ -441,7 +476,18 @@ export default function Home() {
                 </div>
               )
             )}
-            {sidebarOpen && layersOpen && (
+
+<a
+  href="/programs"
+  className="nav-item nav-button"
+  style={{ textDecoration: "none" }}
+  title="Program Discovery"
+>
+  <span className="nav-icon">✧</span>
+  <span className="nav-label">Program Discovery</span>
+</a>
+
+            {sidebarOpen && layersOpen && !homeOpen && (
               <div className="layer-options" aria-label="Map data layer">
                 <p>MAP COLORING</p>
                 <label>
@@ -461,6 +507,23 @@ export default function Home() {
             )}
           </nav>
 
+                    <div className="gc-theme-switch-wrap">
+            <button
+              type="button"
+              className="gc-theme-switch"
+              onClick={toggleGcTheme}
+              title={gcTheme === "night" ? "Switch to day mode" : "Switch to night mode"}
+              aria-label={gcTheme === "night" ? "Switch to day mode" : "Switch to night mode"}
+              aria-pressed={gcTheme === "day"}
+            ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5 8.5 8.5 0 1 0 20.5 14.3Z"/></svg><span className={gcTheme === "day" ? "gc-theme-knob day" : "gc-theme-knob"} /><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button>
+          </div>
+          {sidebarOpen && <button type="button" className="gc-profile-nav" onClick={() => {
+            try { sessionStorage.setItem('gc-open-profile', '1'); } catch {}
+            setHomeOpen(true);
+            window.dispatchEvent(new Event('gc-open-profile'));
+          }} title="Change the demo profile or selected district" aria-label="Switch demo profile">
+            <span aria-hidden="true" className="gc-profile-nav-icon">♙</span><span>Switch Profile</span>
+          </button>}
           {sidebarOpen && (
             <div className="sources">
               <strong>DATA SOURCES</strong>
@@ -660,6 +723,35 @@ export default function Home() {
       </aside>
 
       <style jsx>{`
+        /* gc-vision-v3-round1: first-visit profile, sidebar and context menu */
+        .workspace.vision-home .sidebar:before, .workspace.vision-home .sidebar:after { display:none!important;content:none!important; }
+        .workspace.vision-home .sidebar-content {padding-top:28px;padding-bottom:100px;}
+        .workspace.vision-home .section-label {margin-top:0;}
+        .workspace.vision-home .nav-item.disabled {opacity:.45;}
+        .gc-theme-switch-wrap {position:absolute;z-index:1150;bottom:18px;left:0;width:var(--sidebar-width);display:flex;justify-content:center;pointer-events:none;}
+        .gc-theme-switch {pointer-events:auto;width:94px;height:34px;padding:0 8px;display:flex;align-items:center;justify-content:space-between;position:relative;border-radius:999px;border:1px solid #b78bec99;background:#261b47;color:#f5ce89;font-size:16px;cursor:pointer;box-shadow:0 0 15px #9a69e629;}
+        .gc-theme-knob {position:absolute;width:33px;height:27px;top:3px;left:5px;border-radius:999px;background:linear-gradient(135deg,#7b49c1,#4d3a9b);border:1px solid #d6b1f5;box-shadow:0 2px 7px #0008;transition:transform .2s;}
+        .gc-theme-knob.day {transform:translateX(49px);background:linear-gradient(135deg,#e7c36c,#6ba9a5);}
+        .workspace.vision-home .sidebar .sources {margin-bottom:42px;}
+        .workspace.vision-home .nav-item.active{background:linear-gradient(105deg,rgba(136,72,218,.89),rgba(104,65,173,.73));}
+        .workspace.vision-home .chat-launcher {border:1px solid #bb87ff;background:linear-gradient(110deg,#38245f,#67419f);box-shadow:0 0 20px #8d55e746;color:#fff;}
+        .workspace.vision-home .chat-panel {background:#1d1536ee;border:1px solid #9e76da;backdrop-filter:blur(16px);}
+        .workspace.vision-day .sidebar {background:linear-gradient(180deg,#123a44,#15545a);border-right:1px solid #e3c382;}
+        .workspace.vision-day .nav-item.active{background:#347e7b;border-color:#efdb9d;color:#fff;}
+        /* gc-vision-v2: Home mode removes the standalone header, keeps the map view intact */
+        .workspace.vision-home .topbar { display: none; }
+        .workspace.vision-home .sidebar { top: 0; background: linear-gradient(170deg,rgba(17,14,42,.99),rgba(22,17,53,.98) 65%,rgba(26,14,51,.98)); border-right:1px solid rgba(195,123,252,.42); box-shadow: 3px 0 22px rgba(65,24,116,.38); }
+        .workspace.vision-home .sidebar:before { content:'âœ¿  Going Concern'; position:absolute;top:30px;left:16px;color:#f5e8ff;font:bold 16px Georgia,serif;letter-spacing:.2px;z-index:2;text-shadow:0 0 16px #d488ff7b;white-space:nowrap; }
+        .workspace.vision-home .sidebar:after { content:'HAWAIÊ»I DISTRICT INTELLIGENCE';position:absolute;top:59px;left:17px;font-size:8px;color:#a9a3c7;letter-spacing:1px;white-space:nowrap; }
+        .workspace.vision-home .sidebar-content { padding-top:115px;background-image:linear-gradient(180deg,transparent 54%,#1912380c 60%,#1b1034aa 100%),url('/hawaii-sidebar-art.png');background-size:100% 100%,100% auto;background-position:center,center bottom;background-repeat:no-repeat; }
+        .workspace.vision-home .section-label{color:#c2aee3;}
+        .workspace.vision-home .nav-item{border:1px solid transparent;color:#e8e1f5;border-radius:10px;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;}
+        .workspace.vision-home .nav-item:hover{background:rgba(159,99,215,.23);border-color:#b88bff69;}
+        .workspace.vision-home .nav-item.active{background:linear-gradient(105deg,rgba(136,72,218,.89),rgba(104,65,173,.73));border-color:#dbaaff;box-shadow:0 0 19px rgba(183,93,255,.33);color:white;}
+        .workspace.vision-home .sources{background:rgba(28,22,58,.73);border-color:rgba(186,137,241,.35);backdrop-filter:blur(9px);}
+        .workspace.vision-home .collapse-handle{border-color:#a477df;background:#21183f;color:#e1baff;}
+        .workspace.vision-home.sidebar-collapsed .sidebar:before{content:'âœ¿';font-size:22px;top:23px;left:18px;}
+        .workspace.vision-home.sidebar-collapsed .sidebar:after{content:'';}
         .workspace {
           position: relative;
           width: 100%;
