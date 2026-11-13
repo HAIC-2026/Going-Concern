@@ -49,7 +49,7 @@ function normalize(row:Record<string,unknown>,kind:GeoSnap["kind"],code:string,y
   id:prefix+"E",estimate:numeric(row[prefix+"E"]),moe:numeric(row[prefix+"M"])
  });
  return {
-  name:String(row.NAME??"Unknown"),kind,code,chamber,
+  name:kind==="state"?"State of Hawaiʻi":kind==="county"?(COUNTY_NAMES[code]??String(row.NAME??"Unknown")):`State ${chamber} District ${code}, Hawaiʻi`,kind,code,chamber,
   countyCode:kind==="district"&&chamber?countyFor(chamber,Number(code)):kind==="county"?code:null,
   snap:{
    total:entry("S2201_C01_021"),receiving:entry("S2201_C03_021"),notReceiving:entry("S2201_C05_021")
