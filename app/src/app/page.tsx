@@ -486,6 +486,10 @@ export default function Home() {
   <span className="nav-icon">✧</span>
   <span className="nav-label">Program Discovery</span>
 </a>
+<a href="/outreach" className="nav-item nav-button" style={{ textDecoration: "none" }} title="SNAP Outreach Gap">
+  <span className="nav-icon">◎</span>
+  <span className="nav-label">Outreach Gap</span>
+</a>
 
             {sidebarOpen && layersOpen && !homeOpen && (
               <div className="layer-options" aria-label="Map data layer">
