@@ -51,12 +51,12 @@ Participation rate (derived): `100 × receiving below-poverty households / all b
 
 ## Geographic comparison
 
-- State FIPS: `15`; county FIPS: `001` Hawaiʻi, `003` Honolulu, `007` Kauaʻi, `009` Maui.
+- State FIPS: `15`; county FIPS: `001` Hawaiʻi, `003` Honolulu, `005` Kalawao, `007` Kauaʻi, `009` Maui. The state has **five** Census counties; some sources display only the four large administrative counties.
 - ACS 2024+ legislative district geography references the **2022 post-reapportionment district geography**. The refresh checks that 51 lower-chamber and 25 upper-chamber rows are returned. The Office of Elections provides the authoritative 2022 election maps and legislative district descriptions.
 - Documented district-to-county mapping from the Office of Elections:
   - House 1–8 Hawaiʻi County, 9–14 Maui County, 15–17 Kauaʻi County, 18–51 Honolulu County.
   - Senate 1–4 Hawaiʻi County, 5–7 Maui County, 8 Kauaʻi County, 9–25 Honolulu County.
-- Reference: https://elections.hawaii.gov/final-2021-reapportionment-plans-metes-and-bounds/ and https://elections.hawaii.gov/resources/maps/election-maps/. Cross-county island questions should be resolved against official GIS polygons; these are geographic associations, not ACS estimates.
+- Reference: https://elections.hawaii.gov/final-2021-reapportionment-plans-metes-and-bounds/ and https://elections.hawaii.gov/resources/maps/election-maps/. **Kalawao County on Molokaʻi is a fifth Census county**. House District 13 and Senate District 7 are associated with *Maui County* for this simple comparison, even though portions may overlap Kalawao; this is a primary-county, not exact polygon-intersection, crosswalk. Cross-county analysis should use official GIS polygons and a documented population-weighted match before drawing precise geographic conclusions.
 
 ## Data validation
 
