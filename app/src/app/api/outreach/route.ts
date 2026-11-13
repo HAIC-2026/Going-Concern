@@ -36,7 +36,8 @@ export async function discoverVintage(){
  throw Error("No verified ACS five-year S2201 vintage from 2024 onward");
 }
 async function censusRows(year:number,geo:string,extra:string) {
- const q=new URLSearchParams({get:["NAME",...REQUIRED].join(","),for:geo,in:extra});
+ const q=new URLSearchParams({get:["NAME",...REQUIRED].join(","),for:geo});
+ if(extra)q.set("in",extra);
  const key=process.env.CENSUS_API_KEY?.trim();if(key)q.set("key",key);
  const rows=await getJson(`${ROOT}/${year}/acs/acs5/subject?${q}`) as unknown;
  if(!Array.isArray(rows)||!Array.isArray(rows[0]))throw Error("Invalid Census table");
@@ -64,8 +65,8 @@ export async function pullOutreach():Promise<OutreachCache>{
   censusRows(vintage,"state:15","")
  ]);
  const districts=[
-  ...h.map(row=>normalize(row,"district",String(row[GEO.House]??""),vintage,"House")),
-  ...s.map(row=>normalize(row,"district",String(row[GEO.Senate]??""),vintage,"Senate"))
+  ...h.map(row=>normalize(row,"district",String(Number(row[GEO.House]??"")),vintage,"House")),
+  ...s.map(row=>normalize(row,"district",String(Number(row[GEO.Senate]??"")),vintage,"Senate"))
  ];
  const countyEntries=counties.map(row=>normalize(row,"county",String(row.county??""),vintage));
  if(h.length!==51||s.length!==25)throw Error(`Unexpected district counts: ${h.length} House, ${s.length} Senate`);
