@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 const ROOT = "https://api.census.gov/data";
 const REQUIRED = ["S2201_C01_021E","S2201_C01_021M","S2201_C03_021E","S2201_C03_021M","S2201_C05_021E","S2201_C05_021M"];
 const GEO = {House:"state legislative district (lower chamber)",Senate:"state legislative district (upper chamber)"} as const;
-const COUNTY_NAMES:Record<string,string>={"001":"Hawaiʻi County","003":"Honolulu County","007":"Kauaʻi County","009":"Maui County"};
+const COUNTY_NAMES:Record<string,string>={"001":"Hawaiʻi County","003":"Honolulu County","005":"Kalawao County","007":"Kauaʻi County","009":"Maui County"};
 // Office of Elections, 2022 post-reapportionment district plans. See README-OUTREACH.md.
 export function countyFor(chamber:Chamber,d:number):string {
  if(chamber==="House")return d<=8?"001":d<=14?"009":d<=17?"007":"003";
@@ -70,7 +70,7 @@ export async function pullOutreach():Promise<OutreachCache>{
  ];
  const countyEntries=counties.map(row=>normalize(row,"county",String(row.county??""),vintage));
  if(h.length!==51||s.length!==25)throw Error(`Unexpected district counts: ${h.length} House, ${s.length} Senate`);
- if(countyEntries.length!==4||state.length!==1)throw Error("Missing state or county rows");
+ if(countyEntries.length<4||state.length!==1||["001","003","007","009"].some(c=>!countyEntries.some(x=>x.code===c)))throw Error("Missing state or principal county rows");
  const result:OutreachCache={vintage,dataset:"ACS 5-Year Subject S2201",geographyVintage:"2022 legislative reapportionment geography",fetchedAt:new Date().toISOString(),
    districts,counties:countyEntries,state:normalize(state[0],"state","15",vintage),
    validations:{metadataVerified:true,districtCounts:{House:h.length,Senate:s.length},
