@@ -59,7 +59,7 @@ export default function AnalyticsStudio(){
  <div className={styles.layout}>
   <aside className={styles.sidebar}>
    <div className={styles.islands} aria-hidden="true"/>
-   <nav className={styles.nav} aria-label="Main navigation"><a href="/">⌂ <span>Home</span></a><a href="/" title="Map available from Home">◇ <span>Map View</span></a><a href="/analytics" aria-current="page">▥ <span>Analytics Studio</span></a><a href="/programs">✧ <span>Program Discovery</span></a></nav>
+   <nav className={styles.nav} aria-label="Main navigation"><a href="/">⌂ <span>Home</span></a><a href="/" title="Map available from Home">◇ <span>Map View</span></a><a href="/analytics" aria-current="page">▥ <span>Analytics Studio</span></a><a href="/programs">✧ <span>Program Discovery</span></a><a href="/outreach">◎ <span>Outreach Gap</span></a></nav>
    <div className={styles.sidebarFoot}><div className={styles.source}>DATA SOURCES<br/><span>U.S. Census Bureau<br/>2024 ACS 5-Year Estimates<br/>State legislative districts</span></div><div className={styles.themes}><button aria-pressed={theme==="day"} onClick={()=>{setTheme("day");localStorage.setItem("gc-color-mode","day")}} title="Day mode">☀</button><button aria-pressed={theme==="night"} onClick={()=>{setTheme("night");localStorage.setItem("gc-color-mode","night")}} title="Evening mode">☾</button></div></div>
   </aside>
   <main className={styles.main}>
