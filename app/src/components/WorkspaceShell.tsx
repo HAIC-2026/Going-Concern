@@ -1,44 +1,83 @@
 "use client";
 import {useEffect,useState,type ReactNode} from "react";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
+import {usePathname,useRouter} from "next/navigation";
 import styles from "./WorkspaceShell.module.css";
 import WorkspaceIcon,{type WorkspaceIconName} from "./WorkspaceIcon";
 
-export type PageKey = "overview"|"map"|"initiatives"|"activity"|"partners"|"settings";
-const menu:{href:string;label:string;icon:WorkspaceIconName;key:PageKey}[]=[
- {href:"/",label:"Overview",icon:"home",key:"overview"},
- {href:"/map",label:"Map View",icon:"map",key:"map"},
- {href:"/initiatives",label:"Opportunity Workspace",icon:"opportunity",key:"initiatives"},
- {href:"/activity",label:"Activity Center",icon:"activity",key:"activity"},
- {href:"/partners",label:"Partner Directory",icon:"partners",key:"partners"},
- {href:"/analytics",label:"Analytics Studio",icon:"analytics",key:"overview"},
- {href:"/outreach",label:"SNAP Data & Sources",icon:"sources",key:"overview"},
- {href:"/settings",label:"Settings",icon:"settings",key:"settings"}
+const menu:{href:string;label:string;icon:WorkspaceIconName}[]=[
+ {href:"/",label:"Home",icon:"home"},
+ {href:"/map",label:"Map View",icon:"map"},
+ {href:"/initiatives",label:"Opportunity Workspace",icon:"opportunity"},
+ {href:"/activity",label:"Activity Center",icon:"activity"},
+ {href:"/partners",label:"Partner Directory",icon:"partners"},
+ {href:"/settings",label:"Settings",icon:"settings"},
+ {href:"/programs",label:"Program Discovery",icon:"opportunity"},
+ {href:"/outreach",label:"Outreach Gap",icon:"sources"},
+ {href:"/analytics",label:"Analytics Studio",icon:"analytics"}
 ];
-export default function WorkspaceShell({children,title,kicker,actions}:{children:ReactNode;title:string;kicker?:string;actions?:ReactNode}){
+
+type Props={children:ReactNode;title:string;kicker?:string;actions?:ReactNode;mapMode?:boolean;hideHeading?:boolean};
+export default function WorkspaceShell({children,title,kicker,actions,mapMode=false,hideHeading=false}:Props){
  const pathname=usePathname();
+ const router=useRouter();
  const [theme,setTheme]=useState<"day"|"night">("day");
  const [collapsed,setCollapsed]=useState(false);
  const [profile,setProfile]=useState<{name?:string;chamber?:string;district?:string}|null>(null);
- useEffect(()=>{try{
-  setTheme(localStorage.getItem("gc-color-mode")==="night"?"night":"day");
-  setCollapsed(localStorage.getItem("gc-nav-collapsed")==="1");
-  setProfile(JSON.parse(localStorage.getItem("gc-demo-profile")||"null"));
- }catch{}},[]);
- const toggle=()=>setTheme(t=>{const n=t==="night"?"day":"night";try{localStorage.setItem("gc-color-mode",n);window.dispatchEvent(new CustomEvent("gc-theme-changed",{detail:n}))}catch{}return n});
- const sidebar=()=>setCollapsed(v=>{try{localStorage.setItem("gc-nav-collapsed",v?"0":"1")}catch{}return !v});
- return <div className={`${styles.shell} ${theme==="day"?styles.day:styles.night} ${collapsed?styles.collapsed:""}`}>
-  <header className={styles.top}>
-   <Link href="/" className={styles.brand}><span aria-hidden="true" className={styles.logo}>≋</span><span><strong>Going Concern</strong><small>CONSTITUENT INTELLIGENCE</small></span></Link>
-   <nav className={styles.topnav} aria-label="Primary navigation"><Link href="/">District Intelligence</Link><Link href="/initiatives">Initiatives</Link><Link href="/partners">Partners</Link><Link href="/activity">Activity</Link><Link href="/analytics">Reports</Link></nav>
-   <div className={styles.topright}><button type="button" onClick={toggle} aria-label={theme==="night"?"Switch to day mode":"Switch to night mode"}>{theme==="night"?"☀":"☾"}</button><span className={styles.avatar} title="Demonstration profile">{profile?.name?.trim()?.slice(0,2).toUpperCase()||"GC"}</span></div>
-  </header>
-  <aside className={styles.sidebar}>
-   <div className={styles.location}>{!collapsed&&<><small>SELECTED DISTRICT</small><strong>{profile?.chamber||"House"} District {profile?.district||"1"}</strong></>}</div>
-   <nav aria-label="Workspace navigation">{menu.map(m=><Link key={m.href} href={m.href} title={m.label} aria-current={pathname===m.href?"page":undefined}><WorkspaceIcon name={m.icon}/>{!collapsed&&<span>{m.label}</span>}</Link>)}</nav>
-   <div className={styles.sidebottom}><button type="button" onClick={sidebar} aria-label={collapsed?"Expand navigation":"Collapse navigation"} aria-expanded={!collapsed}>{collapsed?"»":"« Collapse menu"}</button>{!collapsed&&<p>U.S. Census Bureau · ACS 5-Year<br/>Demo workspace · locally saved</p>}</div>
+ useEffect(()=>{
+  const sync=()=>{try{
+    setTheme(localStorage.getItem("gc-color-mode")==="night"?"night":"day");
+    setCollapsed(localStorage.getItem("gc-nav-collapsed")==="1");
+    setProfile(JSON.parse(localStorage.getItem("gc-demo-profile")||"null"));
+  }catch{}};
+  const themeChange=(event:Event)=>{const next=(event as CustomEvent<"day"|"night">).detail;if(next==="day"||next==="night")setTheme(next)};
+  sync();
+  window.addEventListener("storage",sync);
+  window.addEventListener("gc-theme-changed",themeChange);
+  return ()=>{window.removeEventListener("storage",sync);window.removeEventListener("gc-theme-changed",themeChange)};
+ },[]);
+ const toggleTheme=()=>{
+  const next=theme==="day"?"night":"day";setTheme(next);
+  try{localStorage.setItem("gc-color-mode",next);window.dispatchEvent(new CustomEvent("gc-theme-changed",{detail:next}))}catch{}
+ };
+ const toggleSidebar=()=>{const next=!collapsed;setCollapsed(next);try{localStorage.setItem("gc-nav-collapsed",next?"1":"0")}catch{}};
+ const switchProfile=()=>{
+  try{sessionStorage.setItem("gc-open-profile","1")}catch{}
+  if(pathname==="/")window.dispatchEvent(new Event("gc-open-profile"));
+  else router.push("/");
+ };
+ return <div className={`${styles.shell} ${theme==="night"?styles.night:styles.day} ${collapsed?styles.collapsed:""} ${mapMode?styles.mapMode:""}`}>
+  <aside className={styles.sidebar} aria-label="Workspace sidebar">
+   <button type="button" className={styles.collapseHandle} onClick={toggleSidebar}
+    aria-expanded={!collapsed} aria-label={collapsed?"Expand sidebar":"Collapse sidebar"} title={collapsed?"Expand sidebar":"Collapse sidebar"}>
+    {collapsed?"›":"‹"}
+   </button>
+   {!collapsed&&<div className={styles.islands} aria-hidden="true"/>}
+   <nav className={styles.nav} aria-label="Main navigation">
+    {menu.map(item=><Link key={item.href} href={item.href} title={item.label}
+      aria-current={pathname===item.href?"page":undefined}>
+      <WorkspaceIcon name={item.icon}/>{!collapsed&&<span>{item.label}</span>}
+     </Link>)}
+   </nav>
+   <div className={styles.sidebarBottom}>
+    {!collapsed&&<>
+     <button className={styles.profile} onClick={switchProfile} type="button">
+      <WorkspaceIcon name="home"/> <span>Switch Profile</span>
+     </button>
+     <div className={styles.sources}><strong>DATA SOURCES</strong><span>State of Hawaiʻi GIS</span><span>U.S. Census Bureau</span><span>2024 ACS 5-Year</span></div>
+    </>}
+    <button className={styles.themeSwitch} onClick={toggleTheme} type="button"
+     aria-label={theme==="night"?"Switch to day mode":"Switch to evening mode"} title={theme==="night"?"Day mode":"Evening mode"}>
+      <span aria-hidden="true">{theme==="night"?"☀":"☾"}</span>{!collapsed&&<span className={styles.themeTrack}><span/></span>}
+    </button>
+   </div>
   </aside>
-  <main className={styles.main}><div className={styles.heading}><div><small>{kicker||"GOING CONCERN / DISTRICT INTELLIGENCE"}</small><h1>{title}</h1></div>{actions&&<div className={styles.actions}>{actions}</div>}</div>{children}</main>
+  <main className={styles.main}>
+   {!mapMode&&!hideHeading&&<div className={styles.heading}>
+     <div>{kicker&&<small>{kicker}</small>}<h1>{title}</h1></div>
+     {actions&&<div className={styles.actions}>{actions}</div>}
+    </div>}
+   {children}
+  </main>
  </div>;
 }
