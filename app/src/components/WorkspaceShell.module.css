@@ -1,6 +1,6 @@
 /* Shared home-matching frame. The main content changes; no top navigation bar is rendered. */
 .shell{
- --gc-sidebar-width:236px;--gc-ink:#103e45;--gc-muted:#315e65;--gc-action:#087f78;
+ --gc-sidebar-width:250px;--gc-ink:#103e45;--gc-muted:#315e65;--gc-action:#087f78;
  --gc-panel:rgba(189,238,231,.67);--gc-panel-soft:rgba(225,249,243,.65);
  --gc-rule:rgba(255,255,255,.91);--gc-input:rgba(236,252,249,.81);
  --surface2:rgba(141,215,207,.55);
@@ -25,24 +25,24 @@
 }
 .collapsed .sidebar{width:60px}
 .collapseHandle{
- position:absolute;top:19px;right:12px;z-index:5;width:28px;height:28px;
+ position:absolute;top:18px;right:11px;z-index:5;width:30px;height:30px;
  display:grid;place-items:center;color:#fff;cursor:pointer;
  border:1px solid rgba(244,255,255,.85);border-radius:9px;
- background:rgba(4,115,107,.72);font-size:21px;line-height:1;
+ background:rgba(4,115,107,.72);font-size:20px;line-height:1;padding:0;flex-shrink:0;
 }
 .night .collapseHandle{background:rgba(53,43,106,.87)}
-.collapsed .collapseHandle{right:15px}
+.collapsed .collapseHandle{right:14px}
 .collapseHandle:hover{background:#076f69}
-.islands{height:111px;flex-shrink:0;background:url('/gc-island-chain-top.png') top 15px center / 120px auto no-repeat}
-.nav{display:grid;gap:4px;padding:10px 13px 0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;min-height:0}
+.islands{height:109px;flex-shrink:0;background:url('/gc-island-chain-top.png') top 15px center / 120px auto no-repeat}
+.nav{display:flex;flex-direction:column;gap:4px;padding:11px 13px 8px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;min-height:0;flex:1 1 auto;align-items:stretch}
 .nav a{
- display:flex;gap:12px;align-items:center;min-height:43px;
- box-sizing:border-box;padding:10px 12px;border-radius:10px;text-decoration:none;
+ display:flex;gap:12px;align-items:center;min-height:44px;
+ box-sizing:border-box;padding:10px 9px;border-radius:11px;text-decoration:none;
  color:var(--gc-ink);font-size:13px;font-weight:550;line-height:1.3;
  transition:background .15s ease;min-width:0;
 }
 .nav a svg{flex:0 0 20px;width:20px;height:20px}
-.nav a span{overflow-wrap:anywhere}
+.nav a span{overflow-wrap:break-word;white-space:normal;line-height:1.28;min-width:0}
 .nav a:hover{background:var(--surface2)}
 .nav a[aria-current=page]{
  color:#fff;background:rgba(5,123,116,.92);
@@ -50,7 +50,7 @@
  box-shadow:0 7px 18px rgba(13,84,81,.17);
 }
 .night .nav a[aria-current=page]{background:rgba(94,70,170,.92)}
-.sidebarBottom{margin-top:auto;display:grid;gap:10px;padding:12px 14px 15px;flex-shrink:0}
+.sidebarBottom{margin-top:auto;display:grid;gap:9px;padding:10px 14px 13px;flex-shrink:0}
 .profile{display:flex;gap:9px;align-items:center;background:rgba(188,235,227,.52);border:1px solid var(--gc-rule);border-radius:9px;color:var(--gc-ink);padding:11px;font-size:12px;font-weight:650;cursor:pointer}
 .profile svg{height:17px;width:17px}
 .night .profile{background:var(--gc-panel-soft)}
@@ -61,7 +61,7 @@
 .themeTrack{position:relative;width:29px;height:16px;border-radius:20px;background:var(--gc-action);display:block}
 .themeTrack span{position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#e9fffd}
 .collapsed .islands,.collapsed .sources,.collapsed .profile{display:none}
-.collapsed .nav{padding:73px 7px 0}
+.collapsed .nav{padding:72px 7px 8px}
 .collapsed .nav a{justify-content:center;padding:10px 5px}
 .collapsed .sidebarBottom{padding:10px 7px}
 .collapsed .themeSwitch{padding:5px}
@@ -103,3 +103,14 @@
  .main,.mapMode .main{margin:0!important;padding:0!important;width:100%!important;max-width:100%!important;position:static;overflow:visible;height:auto}
  .heading{color:#111}
 }
+
+/* Keep the collapsed rail and expand button aligned with the approved Home menu. */
+.collapseHandle svg{width:18px;height:18px;display:block;pointer-events:none}
+.sidebar{transition:width .16s ease}
+.nav a{flex-shrink:0;box-shadow:none}
+.nav a[aria-current=page] svg{color:#fff}
+.nav a:focus-visible,.collapseHandle:focus-visible{outline:3px solid #e8ac3e;outline-offset:1px}
+.collapsed .nav a{min-height:42px;display:flex;align-items:center;justify-content:center}
+.collapsed .themeSwitch{min-width:36px;min-height:32px;justify-content:center}
+@media(max-height:740px){.islands{height:70px;background-size:100px auto}.nav{padding-top:6px}.nav a{min-height:39px;padding-top:7px;padding-bottom:7px}.sources{padding:9px}.sidebarBottom{gap:5px;padding-bottom:7px}}
+@media(max-width:560px){.sidebar{width:58px}.nav a span{display:none}.sidebarBottom{padding:7px}.collapseHandle{right:13px}.nav{padding-top:68px}}
