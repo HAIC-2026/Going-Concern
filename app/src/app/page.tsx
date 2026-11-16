@@ -1377,7 +1377,6 @@ export default function Home() {
             width: min(350px, calc(100vw - 16px));
           }
         }
-      `}
         /* Unified Home navigation and non-floating collapse control */
         .workspace.vision-home .nav-item:hover,
         .workspace.vision-day .nav-item:hover{background:rgba(4,127,119,.16)!important;border-color:rgba(15,132,119,.46)!important;color:inherit!important;box-shadow:none!important}
@@ -1388,6 +1387,7 @@ export default function Home() {
         .workspace.vision-home .collapse-handle{background:rgba(5,117,110,.66)!important;border-color:rgba(243,255,255,.85)!important;color:#fff!important}
         .workspace.sidebar-collapsed .collapse-handle{right:8px!important}
         .workspace .collapse-handle:hover{background:#076f69!important;color:white!important}
+      `}
 </style>
     </main>
   );
