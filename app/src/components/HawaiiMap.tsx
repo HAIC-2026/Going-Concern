@@ -31,6 +31,7 @@ type HawaiiMapProps = {
   valuesByDistrict: Record<string, MetricValues>;
   incomeByDistrict: Record<string, number>;
   rentThresholds?: number[];
+  theme?: "day" | "night";
 };
 
 const GIS_BASE =
@@ -233,6 +234,7 @@ export default function HawaiiMap({
   incomeByDistrict,
   valuesByDistrict,
   rentThresholds,
+  theme = "night",
 }: HawaiiMapProps) {
 
   const [districts, setDistricts] =
@@ -369,9 +371,11 @@ return (
         <MapPointerReset resetHighlights={resetHighlights} />
 
         <TileLayer
-  attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; OpenStreetMap contributors'
-  url={`https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}.png?key=${process.env.NEXT_PUBLIC_MAPTILER_KEY}`}
-/>
+          key={theme}
+          attribution={theme==="night"?'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'}
+          url={theme==="night"?"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png":"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+          maxZoom={19}
+        />
 
         {districts && (
           <>
