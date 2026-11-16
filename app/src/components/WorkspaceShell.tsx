@@ -25,7 +25,7 @@ export default function WorkspaceShell({children,title,kicker,actions}:{children
   setCollapsed(localStorage.getItem("gc-nav-collapsed")==="1");
   setProfile(JSON.parse(localStorage.getItem("gc-demo-profile")||"null"));
  }catch{}},[]);
- const toggle=()=>setTheme(t=>{const n=t==="night"?"day":"night";try{localStorage.setItem("gc-color-mode",n)}catch{}return n});
+ const toggle=()=>setTheme(t=>{const n=t==="night"?"day":"night";try{localStorage.setItem("gc-color-mode",n);window.dispatchEvent(new CustomEvent("gc-theme-changed",{detail:n}))}catch{}return n});
  const sidebar=()=>setCollapsed(v=>{try{localStorage.setItem("gc-nav-collapsed",v?"0":"1")}catch{}return !v});
  return <div className={`${styles.shell} ${theme==="day"?styles.day:styles.night} ${collapsed?styles.collapsed:""}`}>
   <header className={styles.top}>
