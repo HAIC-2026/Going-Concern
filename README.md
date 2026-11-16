@@ -88,7 +88,7 @@ Participation rate (derived): `100 × receiving below-poverty households / all b
 
 ## Competition workspace redesign (demonstration branch)
 
-The `feature/competition-workspace` branch adds a consistent navy/teal day/night navigation shell for new routes and a demonstration initiative workflow. Routes:
+The `feature/competition-workspace` branch adds a consistent floating Hawaiian day/night navigation shell for new routes and a demonstration initiative workflow. Routes:
 
 - `/`: existing Home/overview with persistent session sign-in and updated navigation.
 - `/map`: interactive split map, expandable filters, House/Senate boundaries, day/night tile maps and Census geographic layers. Public geospatial tiles and Hawaiʻi GIS boundaries still require network access.
@@ -103,3 +103,11 @@ The `feature/competition-workspace` branch adds a consistent navy/teal day/night
 **Source integrity:** the proposed SNAP flow always uses actual cached or live S2201 estimates from `/api/outreach`. No hard-coded example gap quantities, enrollment claims or success percentages. Its scenario is arithmetic using county/state comparator rates, not a forecast. All programme decisions remain with administrators.
 
 **Production deployment:** this feature branch is not automatically safe to merge. Run `npm.cmd run build`, then exercise profile persistence, all navigation links, the map in both themes, the district selection, initiative creation, local activity updates, and print/export. Commit `app/src/data/outreach-cache.json` and keep API keys in environment variables. Deploy a **tested** version with Vercel Root Directory `app`, not the repository root. Public access is required for technical review.
+
+## Single-sidebar visual layout (fix/single-sidebar-layout)
+
+All main navigation routes use the approved Home design: **no horizontal top application header**, the same `gc-diamondhead-day.png` background by day and `gc-diamondhead-evening.png` by night, a floating left glass sidebar, the island-chain artwork, and a **single sidebar collapse toggle at the upper-right**. The previous bottom-of-sidebar collapse button is removed. Theme, collapse preference, and demo profile are saved in browser storage.
+
+Map View (`/map`) is the one background exception: the Leaflet map fills the entire viewport behind the glass sidebar, while filters float on the left side of the map. Day/night basemap controls remain functional.
+
+Home, Analytics Studio, Outreach Gap, and Program Discovery use Next.js client-side links. Individual routes still exist for bookmarking, navigation history, and browser back/forward; **this is not a production authentication system**. Changes on this branch require a successful `npm run build` and visual verification on desktop and mobile before deployment.
