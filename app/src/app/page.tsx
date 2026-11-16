@@ -94,7 +94,11 @@ export default function Home() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   useEffect(() => { try { setSidebarOpen(localStorage.getItem("gc-nav-collapsed") !== "1"); } catch {} }, []);
-  useEffect(() => { try { localStorage.setItem("gc-nav-collapsed", sidebarOpen ? "0" : "1"); } catch {} }, [sidebarOpen]);
+  const toggleHomeSidebar = () => setSidebarOpen(open => {
+    const next = !open;
+    try { localStorage.setItem("gc-nav-collapsed", next ? "0" : "1"); } catch {}
+    return next;
+  });
  const [homeOpen, setHomeOpen] = useState(true);
   const [gcTheme, setGcTheme] = useState<"night" | "day">("day");
   useEffect(() => { try { const saved = localStorage.getItem("gc-color-mode"); if (saved === "day" || saved === "night") setGcTheme(saved); } catch {} }, []);
@@ -547,7 +551,7 @@ export default function Home() {
         <button
           type="button"
           className="collapse-handle"
-          onClick={() => setSidebarOpen((open) => !open)}
+          onClick={toggleHomeSidebar}
           aria-label={
             sidebarOpen
               ? "Collapse sidebar"
@@ -560,7 +564,11 @@ export default function Home() {
               : "Expand sidebar"
           }
         >
-          {sidebarOpen ? "‹" : "›"}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+            <path d="M9 4v16"/>
+            {sidebarOpen ? <path d="m16 9-3 3 3 3"/> : <path d="m13 9 3 3-3 3"/>}
+          </svg>
         </button>
       </aside>
 
@@ -1394,6 +1402,11 @@ export default function Home() {
         .workspace.vision-home .collapse-handle{background:rgba(5,117,110,.66)!important;border-color:rgba(243,255,255,.85)!important;color:#fff!important}
         .workspace.sidebar-collapsed .collapse-handle{right:8px!important}
         .workspace .collapse-handle:hover{background:#076f69!important;color:white!important}
+        /* Shared fixed-size collapse icon, never a protruding side tab. */
+        .workspace .collapse-handle{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;box-sizing:border-box!important;}
+        .workspace .collapse-handle svg{display:block!important;flex:none!important;width:18px!important;height:18px!important;}
+        .workspace.vision-home .sidebar .nav-item{box-sizing:border-box!important;}
+        .workspace.vision-home .sidebar nav{scrollbar-width:thin;}
       `}
 </style>
     </main>
