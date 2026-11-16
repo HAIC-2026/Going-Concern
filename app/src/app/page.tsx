@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import HomeDashboard from "../components/HomeDashboard";
 import WorkspaceIcon,{type WorkspaceIconName} from "../components/WorkspaceIcon";
 type Chamber = "House" | "Senate";
@@ -436,11 +437,11 @@ export default function Home() {
                   <span className="nav-label">{item.label}</span>
                 </button>
               ) : ["Map View","Opportunity Workspace","Activity Center","Partner Directory","Settings"].includes(item.label) ? (
-                <a key={item.label} href={({ "Map View": "/map", "Opportunity Workspace": "/initiatives", "Activity Center": "/activity", "Partner Directory": "/partners", "Settings": "/settings" } as Record<string,string>)[item.label]}
+                <Link key={item.label} href={({ "Map View": "/map", "Opportunity Workspace": "/initiatives", "Activity Center": "/activity", "Partner Directory": "/partners", "Settings": "/settings" } as Record<string,string>)[item.label]}
                   className="nav-item nav-button" title={item.label}>
                   <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
-                </a>
+                </Link>
               ) : item.label === "AI Insights" ? (
                 <button key={item.label} type="button"
                   className={`nav-item nav-button ${chatOpen ? "active" : ""}`}
@@ -476,7 +477,7 @@ export default function Home() {
               )
             )}
 
-<a
+<Link
   href="/programs"
   className="nav-item nav-button"
   style={{ textDecoration: "none" }}
@@ -484,11 +485,15 @@ export default function Home() {
 >
   <span className="nav-icon">✧</span>
   <span className="nav-label">Program Discovery</span>
-</a>
-<a href="/outreach" className="nav-item nav-button" style={{ textDecoration: "none" }} title="SNAP Outreach Gap">
+</Link>
+<Link href="/outreach" className="nav-item nav-button" style={{ textDecoration: "none" }} title="SNAP Outreach Gap">
   <span className="nav-icon">◎</span>
   <span className="nav-label">Outreach Gap</span>
-</a>
+</Link>
+<Link href="/analytics" className="nav-item nav-button" style={{ textDecoration: "none" }} title="Analytics Studio">
+  <span className="nav-icon"><WorkspaceIcon name="analytics"/></span>
+  <span className="nav-label">Analytics Studio</span>
+</Link>
 
             {sidebarOpen && layersOpen && !homeOpen && (
               <div className="layer-options" aria-label="Map data layer">
