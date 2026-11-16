@@ -37,7 +37,7 @@ export default function InitiativeWorkspace({view="workspace"}:{view?:"workspace
  const [ready,setReady]=useState(false);
  const [target,setTarget]=useState<"state"|"county">("state");
  const [actionMessage,setActionMessage]=useState("");
- useEffect(()=>{try{const p=JSON.parse(localStorage.getItem("gc-demo-profile")||"null");if(p?.chamber==="House"||p?.chamber==="Senate")setChamber(p.chamber);if(p?.district)setDistrict(String(Number(p.district)));const saved=loadInitiatives();setAll(saved);if(saved.length)setActiveId(saved[0].id);}catch{}setReady(true)},[]);
+ useEffect(()=>{try{const p=JSON.parse(localStorage.getItem("gc-demo-profile")||"null");const params=new URLSearchParams(window.location.search);const requestedChamber=params.get("chamber"),requestedDistrict=Number(params.get("district"));const nextChamber=requestedChamber==="House"||requestedChamber==="Senate"?requestedChamber:(p?.chamber==="House"||p?.chamber==="Senate"?p.chamber:"House");setChamber(nextChamber);setDistrict(Number.isInteger(requestedDistrict)&&requestedDistrict>0&&requestedDistrict<=(nextChamber==="House"?51:25)?String(requestedDistrict):p?.district?String(Number(p.district)):"5");const saved=loadInitiatives();setAll(saved);if(saved.length)setActiveId(saved[0].id);}catch{}setReady(true)},[]);
  useEffect(()=>{if(!ready)return;const controller=new AbortController();setLoading(true);setError("");
   fetch("/api/outreach?chamber="+chamber,{signal:controller.signal})
    .then(async r=>{const data=await r.json();if(!r.ok)throw Error(data.error||"Data unavailable");return data as Dataset})
