@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./analytics.module.css";
+import WorkspaceShell from "@/components/WorkspaceShell";
 
 type Chamber="House"|"Senate";
 type Metric={key:string;label:string;unit:string;source:string;note:string};
@@ -54,16 +55,9 @@ export default function AnalyticsStudio(){
  const toggle=(id:number)=>setSelected(old=>old.includes(id)?(old.length>1?old.filter(n=>n!==id):old):[...old,id].sort((a,b)=>a-b));
  const exportRows=()=>{if(!payload)return;const columns=["Chamber","District",...payload.metrics.map(m=>m.label)];const rows=[columns,...districts.map(d=>[d.chamber,String(d.district),...payload.metrics.map(m=>d.values[m.key]==null?"":String(d.values[m.key]))])];download(`GoingConcern_${chamber}_ACS2024.csv`,"\uFEFF"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")};
  async function askAI(){if(!payload||!metric)return;setAiBusy(true);setAiError("");setAiText("");try{const response=await fetch("/api/analytics/insights",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chamber,metricKey,scope,selected,question:aiQuestion})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Advisor unavailable");setAiText(String(data.answer||"No answer returned"))}catch(e){setAiError(e instanceof Error?e.message:"Advisor unavailable")}finally{setAiBusy(false)}}
- return <div className={`${styles.screen} ${theme==="night"?styles.night:styles.day}`}>
- <div className={styles.scenery}/>
- <div className={styles.layout}>
-  <aside className={styles.sidebar}>
-   <div className={styles.islands} aria-hidden="true"/>
-   <nav className={styles.nav} aria-label="Main navigation"><a href="/">⌂ <span>Home</span></a><a href="/analytics" aria-current="page">▥ <span>Analytics Studio</span></a><a href="/map">◈ <span>Map View</span></a><a href="/initiatives">▣ <span>Opportunity Workspace</span></a><a href="/activity">◷ <span>Activity Center</span></a><a href="/partners">♧ <span>Partner Directory</span></a><a href="/programs">✧ <span>Program Discovery</span></a><a href="/outreach">◎ <span>SNAP Data &amp; Sources</span></a><a href="/settings">⚙ <span>Settings</span></a></nav>
-   <div className={styles.sidebarFoot}><div className={styles.source}>DATA SOURCES<br/><span>U.S. Census Bureau<br/>2024 ACS 5-Year Estimates<br/>State legislative districts</span></div><div className={styles.themes}><button aria-pressed={theme==="day"} onClick={()=>{setTheme("day");localStorage.setItem("gc-color-mode","day")}} title="Day mode">☀</button><button aria-pressed={theme==="night"} onClick={()=>{setTheme("night");localStorage.setItem("gc-color-mode","night")}} title="Evening mode">☾</button></div></div>
-  </aside>
-  <main className={styles.main}>
-   <header className={styles.header}><div><p className={styles.eyebrow}>GOING CONCERN / INTELLIGENCE</p><h1>Analytics Studio</h1><p>Explore Hawaiʻi's districts, compare conditions and test assumptions.</p></div><button className={styles.outlineButton} onClick={exportRows} disabled={!payload}>↓ Export CSV</button></header>
+ return <WorkspaceShell title="Analytics Studio" kicker="GOING CONCERN / INTELLIGENCE" actions={<button className={styles.outlineButton} onClick={exportRows} disabled={!payload}>↓ Export CSV</button>}><div className={`${styles.screen} ${theme==="night"?styles.night:styles.day}`}>
+  <div className={styles.main}>
+
    <section className={styles.toolbar} aria-label="Analysis controls">
     <div className={styles.switch}><button aria-pressed={chamber==="House"} onClick={()=>setChamber("House")}>House · 51</button><button aria-pressed={chamber==="Senate"} onClick={()=>setChamber("Senate")}>Senate · 25</button></div>
     <label>Scope <select value={scope} onChange={e=>setScope(e.target.value as "all"|"selected")}><option value="all">All {chamber} districts</option><option value="selected">Selected districts</option></select></label>
@@ -100,6 +94,6 @@ export default function AnalyticsStudio(){
     </section>
     <footer className={styles.footer}><strong>Data integrity:</strong> U.S. Census Bureau, 2024 ACS five-year estimates · <a target="_blank" rel="noreferrer" href={payload.source}>Original dataset</a> · Derived percentages without propagated margins of error · {payload.limitations}</footer>
    </>}
-  </main>
- </div></div>;
+  </div>
+ </div></div></WorkspaceShell>;
 }
