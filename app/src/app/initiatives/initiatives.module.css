@@ -26,3 +26,42 @@
 :global([class*="WorkspaceShell_day"]) .kpis span{color:#3e5d6a}
 
 @media print{.card,.card h2,.card h3,.kpis article,.kpis article strong,.flowBox,.steps,.filters,.partner{background:#fff!important;color:#17283d!important}.card a,.muted,.source{color:#26374a!important}.fullLabel textarea{background:#fff!important;color:#111!important}.flowCenter,.flowBox{break-inside:avoid}.steps{display:none!important}}
+
+/* The entire initiative workspace uses the same sky/sea glass as Home, with nighttime counterpart. */
+.lead,.muted,.source,.disclaimer,.kpis span,.kpis small,.steps small,.partner small{color:var(--gc-muted)!important}
+.filters,.steps,.card,.kpis article,.partner,.flowBox,.flowBox:first-child{
+ background:var(--gc-panel)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important;
+ backdrop-filter:blur(19px) saturate(1.13);-webkit-backdrop-filter:blur(19px) saturate(1.13);
+ box-shadow:0 12px 29px rgba(5,51,60,.12)
+}
+.filters label,.card h2,.card h3,.kpis strong,.kpis small,.steps span,.partner h2,.flowBox h3,.card p,.card label{color:var(--gc-ink)!important}
+.filters select,.fullLabel textarea{background:var(--gc-input)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important}
+.filters select option{background:#fff;color:#103f43}
+.status,.saveLabel{color:var(--gc-action)!important}
+.primary,.steps button.current b{background:var(--gc-action)!important;color:white!important;border-color:var(--gc-rule)!important}
+.ghost{background:var(--gc-panel-soft)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important}
+.steps button{color:var(--gc-ink)!important}
+.steps button.current{background:var(--gc-panel-soft)!important;border-color:var(--gc-rule)!important}
+.steps b{background:var(--gc-panel-soft)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important}
+.flowCenter{background:var(--gc-panel-soft)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important;box-shadow:0 9px 23px rgba(5,61,64,.13)}
+.flowCenter b,.flowCenter small{color:var(--gc-ink)!important}
+.flowCenter span{color:var(--gc-action)!important}
+.flowBox a,.flowBox button{background:var(--gc-panel-soft)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important}
+.flowBox button:hover,.ghost:hover{background:var(--surface2)!important}
+.card a,.sideColumn .card a,.partner a{color:var(--gc-action)!important;font-weight:700}
+.partnerRow{color:var(--gc-ink)}
+.partnerRow input{accent-color:var(--gc-action)}
+.banner{background:var(--gc-panel);border-color:var(--gc-rule);color:var(--gc-ink)}
+.card .fullLabel textarea::placeholder{color:var(--gc-muted)}
+/* Day mode never inherits the dark selectors from an older stylesheet. */
+:global([class*="WorkspaceShell_day"]) .card,
+:global([class*="WorkspaceShell_day"]) .filters,
+:global([class*="WorkspaceShell_day"]) .steps,
+:global([class*="WorkspaceShell_day"]) .kpis article{
+ background:var(--gc-panel)!important;color:var(--gc-ink)!important
+}
+@media print{
+ .filters,.steps{display:none!important}
+ .card,.kpis article,.flowBox,.flowCenter{background:#fff!important;color:#162737!important;border:1px solid #aaa!important;box-shadow:none}
+ .card p,.card h2,.card h3,.flowBox h3,.kpis strong,.kpis small{color:#162737!important}
+}
