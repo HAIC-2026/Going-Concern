@@ -18,11 +18,11 @@ const menu:{href:string;label:string;icon:WorkspaceIconName;key:PageKey}[]=[
 ];
 export default function WorkspaceShell({children,title,kicker,actions}:{children:ReactNode;title:string;kicker?:string;actions?:ReactNode}){
  const pathname=usePathname();
- const [theme,setTheme]=useState<"day"|"night">("night");
+ const [theme,setTheme]=useState<"day"|"night">("day");
  const [collapsed,setCollapsed]=useState(false);
  const [profile,setProfile]=useState<{name?:string;chamber?:string;district?:string}|null>(null);
  useEffect(()=>{try{
-  setTheme(localStorage.getItem("gc-color-mode")==="day"?"day":"night");
+  setTheme(localStorage.getItem("gc-color-mode")==="night"?"night":"day");
   setCollapsed(localStorage.getItem("gc-nav-collapsed")==="1");
   setProfile(JSON.parse(localStorage.getItem("gc-demo-profile")||"null"));
  }catch{}},[]);
