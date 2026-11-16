@@ -114,3 +114,21 @@
 .collapsed .themeSwitch{min-width:36px;min-height:32px;justify-content:center}
 @media(max-height:740px){.islands{height:70px;background-size:100px auto}.nav{padding-top:6px}.nav a{min-height:39px;padding-top:7px;padding-bottom:7px}.sources{padding:9px}.sidebarBottom{gap:5px;padding-bottom:7px}}
 @media(max-width:560px){.sidebar{width:58px}.nav a span{display:none}.sidebarBottom{padding:7px}.collapseHandle{right:13px}.nav{padding-top:68px}}
+
+/* Reusable Opportunity Workspace sidebar layer, also mounted inside Home.
+   No independent page background; pointer events pass through outside the menu. */
+.sidebarLayer{
+ --gc-ink:#103e45;--gc-muted:#315e65;--gc-action:#087f78;
+ --gc-panel:rgba(189,238,231,.67);--gc-panel-soft:rgba(225,249,243,.65);
+ --gc-rule:rgba(255,255,255,.91);--gc-input:rgba(236,252,249,.81);
+ --surface2:rgba(141,215,207,.55);
+ position:fixed;inset:0;z-index:1100;pointer-events:none;color:var(--gc-ink);
+ font:14px/1.5 Arial,Helvetica,sans-serif;
+}
+.sidebarLayer.night{
+ --gc-ink:#fbf4ff;--gc-muted:#ddd2ed;--gc-action:#a076de;
+ --gc-panel:rgba(29,24,60,.72);--gc-panel-soft:rgba(49,38,93,.70);
+ --gc-rule:rgba(214,181,252,.61);--gc-input:rgba(32,27,70,.88);
+ --surface2:rgba(104,80,158,.53);
+}
+.sidebarLayer .sidebar{pointer-events:auto}
