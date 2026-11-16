@@ -25,7 +25,7 @@
 }
 .collapsed .sidebar{width:60px}
 .collapseHandle{
- position:absolute;top:18px;right:11px;z-index:5;width:30px;height:30px;
+ position:absolute;top:18px;right:8px;z-index:5;width:28px;height:29px;
  display:grid;place-items:center;color:#fff;cursor:pointer;
  border:1px solid rgba(244,255,255,.85);border-radius:9px;
  background:rgba(4,115,107,.72);font-size:20px;line-height:1;padding:0;flex-shrink:0;
