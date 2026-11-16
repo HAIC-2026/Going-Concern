@@ -201,3 +201,10 @@
 
 /* GC MENU PROFILE POLISH V1: menu owns demo profile switching */
 .profileAction{display:none!important}
+
+/* Demo sign-in defaults to the bright, daytime experience regardless of prior dashboard theme. */
+.onboardingBackdrop{background:linear-gradient(140deg,rgba(229,246,242,.92),rgba(159,213,215,.87)),url('/gc-diamondhead-day.png') center/cover no-repeat!important;backdrop-filter:blur(8px)!important}
+.onboardingCard{background:rgba(244,252,250,.97)!important;color:#123c43!important;border:1px solid #84c8c8!important;box-shadow:0 22px 65px rgba(13,71,79,.22)!important}
+.onboardingCard h2{color:#123e41!important}.onboardingCard p,.onboardingCard label,.onboardingCard small{color:#355f65!important}
+.onboardingCard input,.onboardingCard select{background:#fff!important;color:#173d40!important;border:1px solid #76afba!important}
+.onboardingCard button{background:#087f79!important;color:#fff!important;border-color:#0a726e!important}
