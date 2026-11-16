@@ -1,7 +1,7 @@
 name: Validate Going Concern Workspace
 on:
   push:
-    branches: [feature/competition-workspace]
+    branches: [feature/competition-workspace, fix/unified-ui-theme]
   workflow_dispatch:
 jobs:
   build:
