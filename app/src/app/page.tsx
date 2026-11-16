@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import HomeDashboard from "../components/HomeDashboard";
 import WorkspaceIcon,{type WorkspaceIconName} from "../components/WorkspaceIcon";
 type Chamber = "House" | "Senate";
@@ -90,6 +91,7 @@ const NAV_ITEMS: { icon: WorkspaceIconName; label: string; active: boolean }[] =
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   useEffect(() => { try { setSidebarOpen(localStorage.getItem("gc-nav-collapsed") !== "1"); } catch {} }, []);
   useEffect(() => { try { localStorage.setItem("gc-nav-collapsed", sidebarOpen ? "0" : "1"); } catch {} }, [sidebarOpen]);
@@ -389,7 +391,7 @@ export default function Home() {
           incomes={incomeData[chamber]}
           details={extraMetrics[chamber]}
           onChamberChange={handleChamberChange}
-          onMap={() => setHomeOpen(false)}
+          onMap={() => router.push("/map")}
           onAskAI={() => { setChatOpen(true); }}
           mode={gcTheme}
         />
