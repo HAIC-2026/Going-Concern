@@ -60,3 +60,24 @@
 @media(max-width:1150px){.shell{grid-template-columns:1fr}.nav{position:relative;top:auto;min-height:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center}}
 @media(max-width:800px){.three,.two,.hero{grid-template-columns:1fr}.heroSide{border-left:0;border-top:1px solid var(--line)}.top{flex-direction:column;align-items:start}}
 @media print{@page{size:letter;margin:8mm}.page{background:#fff!important;color:#111!important;font-size:10px}.scenery,.nav,.topActions,.filters,.two>.card:last-child{display:none!important}.shell{display:block;padding:0}.top,.hero,.compare,.card,.footer{background:#fff!important;color:#111!important;border:1px solid #aaa!important;box-shadow:none;break-inside:avoid;backdrop-filter:none;padding:10px;margin:0}.report{gap:4px;font-size:9px}.three{gap:4px}.two{gap:4px}.big{font-size:35px}.compare strong{font-size:24px}.heroSide strong{font-size:25px}.result{font-size:18px}.content{width:100%}.top h1{font-size:25px}.card h2{font-size:15px}.footer{font-size:9px}.caution{color:#752200!important}}
+/* Unified app frame: SNAP page provides content only; Home sidebar and photo are shared. */
+.page{
+ --ink:var(--gc-ink);--glass:var(--gc-panel);--line:var(--gc-rule);
+ --secondary:var(--gc-muted);--accent:var(--gc-action);
+ min-height:0;background:transparent!important;color:var(--gc-ink)!important;
+}
+.scenery,.nav{display:none!important}
+.shell{display:block!important;padding:0!important;margin:0!important;max-width:none!important;min-height:0!important}
+.content{min-width:0;width:100%}
+.top,.filters,.hero,.compare,.card,.footer{background:var(--gc-panel)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important;backdrop-filter:blur(19px) saturate(1.15)}
+.top{margin:0 0 14px}
+.topActions button{color:var(--gc-ink)}
+.topActions button:last-child{color:white;background:var(--gc-action)}
+.top h1,.hero h2,.card h2,.compare h3{color:var(--gc-ink)}
+.heroSide strong,.compare strong,.result,.eyebrow{color:var(--gc-action)!important}
+.filters select{background:var(--gc-input)!important;color:var(--gc-ink)!important;border-color:var(--gc-rule)!important}
+.filters select option{color:#163c42;background:#fff}
+.compare p,.compare small,.subtle,.footer,.vintage,.heroSide small{color:var(--gc-muted)!important}
+.card a{color:var(--gc-action)!important;text-decoration:underline}
+.page :is(button,select,a):focus-visible{outline:3px solid #eab351;outline-offset:3px}
+@media print{.page,.top,.filters,.hero,.compare,.card,.footer{background:#fff!important;color:#111!important}}
