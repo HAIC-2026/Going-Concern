@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { calcSnap, type OutreachCache, type GeoSnap, type Chamber } from "@/lib/outreach";
 
-export const runtime = "nodejs";
 const ROOT = "https://api.census.gov/data";
 const REQUIRED = ["S2201_C01_021E","S2201_C01_021M","S2201_C03_021E","S2201_C03_021M","S2201_C05_021E","S2201_C05_021M"];
 const GEO = {House:"state legislative district (lower chamber)",Senate:"state legislative district (upper chamber)"} as const;
