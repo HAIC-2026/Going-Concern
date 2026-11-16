@@ -1,0 +1,1979 @@
+{
+  "vintage": 2024,
+  "fetchedAt": "2026-11-16T09:51:24.395Z",
+  "dataset": "ACS 5-Year Subject S2201",
+  "geographyVintage": "2022 legislative reapportionment geography",
+  "state": {
+    "name": "Hawaii",
+    "code": "15",
+    "kind": "state",
+    "snap": {
+      "total": {
+        "id": "S2201_C01_021E",
+        "estimate": 51218,
+        "moe": 1913
+      },
+      "receiving": {
+        "id": "S2201_C03_021E",
+        "estimate": 19479,
+        "moe": 1161
+      },
+      "notReceiving": {
+        "id": "S2201_C05_021E",
+        "estimate": 31739,
+        "moe": 1531
+      }
+    }
+  },
+  "counties": [
+    {
+      "name": "Hawaii County, Hawaii",
+      "code": "001",
+      "kind": "county",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 11888,
+          "moe": 1077
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 5188,
+          "moe": 554
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 6700,
+          "moe": 875
+        }
+      }
+    },
+    {
+      "name": "Honolulu County, Hawaii",
+      "code": "003",
+      "kind": "county",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 31570,
+          "moe": 1354
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 11825,
+          "moe": 904
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 19745,
+          "moe": 1050
+        }
+      }
+    },
+    {
+      "name": "Kalawao County, Hawaii",
+      "code": "005",
+      "kind": "county",
+      "countyCode": "005",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 0,
+          "moe": 12
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 0,
+          "moe": 12
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 0,
+          "moe": 12
+        }
+      }
+    },
+    {
+      "name": "Kauai County, Hawaii",
+      "code": "007",
+      "kind": "county",
+      "countyCode": "007",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2303,
+          "moe": 339
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 698,
+          "moe": 139
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1605,
+          "moe": 310
+        }
+      }
+    },
+    {
+      "name": "Maui County, Hawaii",
+      "code": "009",
+      "kind": "county",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 5457,
+          "moe": 530
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1768,
+          "moe": 318
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 3689,
+          "moe": 439
+        }
+      }
+    }
+  ],
+  "districts": [
+    {
+      "name": "State House District 1 (2024); Hawaii",
+      "code": "1",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1121,
+          "moe": 279
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 522,
+          "moe": 195
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 599,
+          "moe": 191
+        }
+      }
+    },
+    {
+      "name": "State House District 2 (2024); Hawaii",
+      "code": "2",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2050,
+          "moe": 463
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 850,
+          "moe": 247
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1200,
+          "moe": 371
+        }
+      }
+    },
+    {
+      "name": "State House District 3 (2024); Hawaii",
+      "code": "3",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1976,
+          "moe": 378
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1280,
+          "moe": 286
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 696,
+          "moe": 216
+        }
+      }
+    },
+    {
+      "name": "State House District 4 (2024); Hawaii",
+      "code": "4",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2287,
+          "moe": 422
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1008,
+          "moe": 267
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1279,
+          "moe": 340
+        }
+      }
+    },
+    {
+      "name": "State House District 5 (2024); Hawaii",
+      "code": "5",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1544,
+          "moe": 298
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1004,
+          "moe": 261
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 540,
+          "moe": 177
+        }
+      }
+    },
+    {
+      "name": "State House District 6 (2024); Hawaii",
+      "code": "6",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 825,
+          "moe": 207
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 99,
+          "moe": 54
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 726,
+          "moe": 200
+        }
+      }
+    },
+    {
+      "name": "State House District 7 (2024); Hawaii",
+      "code": "7",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1140,
+          "moe": 282
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 332,
+          "moe": 154
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 808,
+          "moe": 253
+        }
+      }
+    },
+    {
+      "name": "State House District 8 (2024); Hawaii",
+      "code": "8",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 945,
+          "moe": 335
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 93,
+          "moe": 86
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 852,
+          "moe": 314
+        }
+      }
+    },
+    {
+      "name": "State House District 9 (2024); Hawaii",
+      "code": "9",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 797,
+          "moe": 238
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 287,
+          "moe": 127
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 510,
+          "moe": 207
+        }
+      }
+    },
+    {
+      "name": "State House District 10 (2024); Hawaii",
+      "code": "10",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 640,
+          "moe": 176
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 185,
+          "moe": 100
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 455,
+          "moe": 151
+        }
+      }
+    },
+    {
+      "name": "State House District 11 (2024); Hawaii",
+      "code": "11",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1086,
+          "moe": 267
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 230,
+          "moe": 116
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 856,
+          "moe": 245
+        }
+      }
+    },
+    {
+      "name": "State House District 12 (2024); Hawaii",
+      "code": "12",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1069,
+          "moe": 237
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 345,
+          "moe": 139
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 724,
+          "moe": 182
+        }
+      }
+    },
+    {
+      "name": "State House District 13 (2024); Hawaii",
+      "code": "13",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1232,
+          "moe": 237
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 496,
+          "moe": 158
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 736,
+          "moe": 207
+        }
+      }
+    },
+    {
+      "name": "State House District 14 (2024); Hawaii",
+      "code": "14",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 633,
+          "moe": 165
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 225,
+          "moe": 112
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 408,
+          "moe": 138
+        }
+      }
+    },
+    {
+      "name": "State House District 15 (2024); Hawaii",
+      "code": "15",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "007",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 901,
+          "moe": 231
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 238,
+          "moe": 110
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 663,
+          "moe": 196
+        }
+      }
+    },
+    {
+      "name": "State House District 16 (2024); Hawaii",
+      "code": "16",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "007",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 684,
+          "moe": 214
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 136,
+          "moe": 72
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 548,
+          "moe": 211
+        }
+      }
+    },
+    {
+      "name": "State House District 17 (2024); Hawaii",
+      "code": "17",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "007",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 718,
+          "moe": 186
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 324,
+          "moe": 97
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 394,
+          "moe": 150
+        }
+      }
+    },
+    {
+      "name": "State House District 18 (2024); Hawaii",
+      "code": "18",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 411,
+          "moe": 104
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 59,
+          "moe": 45
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 352,
+          "moe": 102
+        }
+      }
+    },
+    {
+      "name": "State House District 19 (2024); Hawaii",
+      "code": "19",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 621,
+          "moe": 138
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 14,
+          "moe": 16
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 607,
+          "moe": 136
+        }
+      }
+    },
+    {
+      "name": "State House District 20 (2024); Hawaii",
+      "code": "20",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 767,
+          "moe": 204
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 179,
+          "moe": 127
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 588,
+          "moe": 174
+        }
+      }
+    },
+    {
+      "name": "State House District 21 (2024); Hawaii",
+      "code": "21",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 791,
+          "moe": 184
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 222,
+          "moe": 84
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 569,
+          "moe": 177
+        }
+      }
+    },
+    {
+      "name": "State House District 22 (2024); Hawaii",
+      "code": "22",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 995,
+          "moe": 196
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 222,
+          "moe": 105
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 773,
+          "moe": 172
+        }
+      }
+    },
+    {
+      "name": "State House District 23 (2024); Hawaii",
+      "code": "23",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2438,
+          "moe": 501
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 784,
+          "moe": 204
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1654,
+          "moe": 456
+        }
+      }
+    },
+    {
+      "name": "State House District 24 (2024); Hawaii",
+      "code": "24",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2120,
+          "moe": 296
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 365,
+          "moe": 104
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1755,
+          "moe": 268
+        }
+      }
+    },
+    {
+      "name": "State House District 25 (2024); Hawaii",
+      "code": "25",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1566,
+          "moe": 333
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 539,
+          "moe": 204
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1027,
+          "moe": 303
+        }
+      }
+    },
+    {
+      "name": "State House District 26 (2024); Hawaii",
+      "code": "26",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1616,
+          "moe": 319
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 652,
+          "moe": 251
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 964,
+          "moe": 192
+        }
+      }
+    },
+    {
+      "name": "State House District 27 (2024); Hawaii",
+      "code": "27",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 732,
+          "moe": 176
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 282,
+          "moe": 96
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 450,
+          "moe": 153
+        }
+      }
+    },
+    {
+      "name": "State House District 28 (2024); Hawaii",
+      "code": "28",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2480,
+          "moe": 326
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1584,
+          "moe": 230
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 896,
+          "moe": 211
+        }
+      }
+    },
+    {
+      "name": "State House District 29 (2024); Hawaii",
+      "code": "29",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 641,
+          "moe": 171
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 455,
+          "moe": 145
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 186,
+          "moe": 83
+        }
+      }
+    },
+    {
+      "name": "State House District 30 (2024); Hawaii",
+      "code": "30",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 909,
+          "moe": 265
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 468,
+          "moe": 212
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 441,
+          "moe": 146
+        }
+      }
+    },
+    {
+      "name": "State House District 31 (2024); Hawaii",
+      "code": "31",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1227,
+          "moe": 301
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 495,
+          "moe": 242
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 732,
+          "moe": 156
+        }
+      }
+    },
+    {
+      "name": "State House District 32 (2024); Hawaii",
+      "code": "32",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 802,
+          "moe": 209
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 81,
+          "moe": 62
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 721,
+          "moe": 201
+        }
+      }
+    },
+    {
+      "name": "State House District 33 (2024); Hawaii",
+      "code": "33",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 546,
+          "moe": 141
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 69,
+          "moe": 53
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 477,
+          "moe": 144
+        }
+      }
+    },
+    {
+      "name": "State House District 34 (2024); Hawaii",
+      "code": "34",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 756,
+          "moe": 184
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 145,
+          "moe": 65
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 611,
+          "moe": 173
+        }
+      }
+    },
+    {
+      "name": "State House District 35 (2024); Hawaii",
+      "code": "35",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 752,
+          "moe": 193
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 243,
+          "moe": 97
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 509,
+          "moe": 180
+        }
+      }
+    },
+    {
+      "name": "State House District 36 (2024); Hawaii",
+      "code": "36",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 738,
+          "moe": 243
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 401,
+          "moe": 164
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 337,
+          "moe": 181
+        }
+      }
+    },
+    {
+      "name": "State House District 37 (2024); Hawaii",
+      "code": "37",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 356,
+          "moe": 134
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 59,
+          "moe": 52
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 297,
+          "moe": 117
+        }
+      }
+    },
+    {
+      "name": "State House District 38 (2024); Hawaii",
+      "code": "38",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 409,
+          "moe": 109
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 121,
+          "moe": 68
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 288,
+          "moe": 97
+        }
+      }
+    },
+    {
+      "name": "State House District 39 (2024); Hawaii",
+      "code": "39",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 406,
+          "moe": 111
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 138,
+          "moe": 71
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 268,
+          "moe": 96
+        }
+      }
+    },
+    {
+      "name": "State House District 40 (2024); Hawaii",
+      "code": "40",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 368,
+          "moe": 143
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 151,
+          "moe": 105
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 217,
+          "moe": 106
+        }
+      }
+    },
+    {
+      "name": "State House District 41 (2024); Hawaii",
+      "code": "41",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 350,
+          "moe": 129
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 92,
+          "moe": 50
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 258,
+          "moe": 119
+        }
+      }
+    },
+    {
+      "name": "State House District 42 (2024); Hawaii",
+      "code": "42",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 936,
+          "moe": 366
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 699,
+          "moe": 357
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 237,
+          "moe": 89
+        }
+      }
+    },
+    {
+      "name": "State House District 43 (2024); Hawaii",
+      "code": "43",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 628,
+          "moe": 155
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 339,
+          "moe": 131
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 289,
+          "moe": 80
+        }
+      }
+    },
+    {
+      "name": "State House District 44 (2024); Hawaii",
+      "code": "44",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 924,
+          "moe": 238
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 465,
+          "moe": 167
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 459,
+          "moe": 144
+        }
+      }
+    },
+    {
+      "name": "State House District 45 (2024); Hawaii",
+      "code": "45",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1407,
+          "moe": 330
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 878,
+          "moe": 223
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 529,
+          "moe": 259
+        }
+      }
+    },
+    {
+      "name": "State House District 46 (2024); Hawaii",
+      "code": "46",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1420,
+          "moe": 280
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 574,
+          "moe": 163
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 846,
+          "moe": 236
+        }
+      }
+    },
+    {
+      "name": "State House District 47 (2024); Hawaii",
+      "code": "47",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1046,
+          "moe": 270
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 403,
+          "moe": 147
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 643,
+          "moe": 230
+        }
+      }
+    },
+    {
+      "name": "State House District 48 (2024); Hawaii",
+      "code": "48",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 626,
+          "moe": 156
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 134,
+          "moe": 70
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 492,
+          "moe": 140
+        }
+      }
+    },
+    {
+      "name": "State House District 49 (2024); Hawaii",
+      "code": "49",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 550,
+          "moe": 175
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 253,
+          "moe": 123
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 297,
+          "moe": 135
+        }
+      }
+    },
+    {
+      "name": "State House District 50 (2024); Hawaii",
+      "code": "50",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 750,
+          "moe": 178
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 119,
+          "moe": 63
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 631,
+          "moe": 169
+        }
+      }
+    },
+    {
+      "name": "State House District 51 (2024); Hawaii",
+      "code": "51",
+      "kind": "district",
+      "chamber": "House",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 486,
+          "moe": 155
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 141,
+          "moe": 78
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 345,
+          "moe": 131
+        }
+      }
+    },
+    {
+      "name": "State Senate District 1 (2024); Hawaii",
+      "code": "1",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 3438,
+          "moe": 540
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1560,
+          "moe": 343
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1878,
+          "moe": 432
+        }
+      }
+    },
+    {
+      "name": "State Senate District 2 (2024); Hawaii",
+      "code": "2",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 4413,
+          "moe": 576
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 2537,
+          "moe": 443
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1876,
+          "moe": 381
+        }
+      }
+    },
+    {
+      "name": "State Senate District 3 (2024); Hawaii",
+      "code": "3",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2180,
+          "moe": 384
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 755,
+          "moe": 241
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1425,
+          "moe": 298
+        }
+      }
+    },
+    {
+      "name": "State Senate District 4 (2024); Hawaii",
+      "code": "4",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "001",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1857,
+          "moe": 449
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 336,
+          "moe": 145
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1521,
+          "moe": 404
+        }
+      }
+    },
+    {
+      "name": "State Senate District 5 (2024); Hawaii",
+      "code": "5",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1509,
+          "moe": 288
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 487,
+          "moe": 173
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1022,
+          "moe": 254
+        }
+      }
+    },
+    {
+      "name": "State Senate District 6 (2024); Hawaii",
+      "code": "6",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1647,
+          "moe": 305
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 440,
+          "moe": 161
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1207,
+          "moe": 279
+        }
+      }
+    },
+    {
+      "name": "State Senate District 7 (2024); Hawaii",
+      "code": "7",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "009",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2301,
+          "moe": 336
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 841,
+          "moe": 192
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1460,
+          "moe": 265
+        }
+      }
+    },
+    {
+      "name": "State Senate District 8 (2024); Hawaii",
+      "code": "8",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "007",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2303,
+          "moe": 339
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 698,
+          "moe": 139
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1605,
+          "moe": 310
+        }
+      }
+    },
+    {
+      "name": "State Senate District 9 (2024); Hawaii",
+      "code": "9",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1267,
+          "moe": 238
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 112,
+          "moe": 65
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1155,
+          "moe": 235
+        }
+      }
+    },
+    {
+      "name": "State Senate District 10 (2024); Hawaii",
+      "code": "10",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2486,
+          "moe": 325
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 591,
+          "moe": 173
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1895,
+          "moe": 284
+        }
+      }
+    },
+    {
+      "name": "State Senate District 11 (2024); Hawaii",
+      "code": "11",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2573,
+          "moe": 369
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1022,
+          "moe": 271
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1551,
+          "moe": 260
+        }
+      }
+    },
+    {
+      "name": "State Senate District 12 (2024); Hawaii",
+      "code": "12",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 4260,
+          "moe": 573
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1145,
+          "moe": 265
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 3115,
+          "moe": 482
+        }
+      }
+    },
+    {
+      "name": "State Senate District 13 (2024); Hawaii",
+      "code": "13",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 3528,
+          "moe": 384
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1880,
+          "moe": 255
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1648,
+          "moe": 268
+        }
+      }
+    },
+    {
+      "name": "State Senate District 14 (2024); Hawaii",
+      "code": "14",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1532,
+          "moe": 259
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 813,
+          "moe": 181
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 719,
+          "moe": 183
+        }
+      }
+    },
+    {
+      "name": "State Senate District 15 (2024); Hawaii",
+      "code": "15",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2267,
+          "moe": 390
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 909,
+          "moe": 327
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1358,
+          "moe": 220
+        }
+      }
+    },
+    {
+      "name": "State Senate District 16 (2024); Hawaii",
+      "code": "16",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1139,
+          "moe": 245
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 113,
+          "moe": 65
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1026,
+          "moe": 248
+        }
+      }
+    },
+    {
+      "name": "State Senate District 17 (2024); Hawaii",
+      "code": "17",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1384,
+          "moe": 293
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 454,
+          "moe": 127
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 930,
+          "moe": 259
+        }
+      }
+    },
+    {
+      "name": "State Senate District 18 (2024); Hawaii",
+      "code": "18",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 672,
+          "moe": 166
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 147,
+          "moe": 80
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 525,
+          "moe": 135
+        }
+      }
+    },
+    {
+      "name": "State Senate District 19 (2024); Hawaii",
+      "code": "19",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1632,
+          "moe": 304
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 688,
+          "moe": 198
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 944,
+          "moe": 233
+        }
+      }
+    },
+    {
+      "name": "State Senate District 20 (2024); Hawaii",
+      "code": "20",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 727,
+          "moe": 176
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 213,
+          "moe": 110
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 514,
+          "moe": 143
+        }
+      }
+    },
+    {
+      "name": "State Senate District 21 (2024); Hawaii",
+      "code": "21",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1643,
+          "moe": 400
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1096,
+          "moe": 385
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 547,
+          "moe": 122
+        }
+      }
+    },
+    {
+      "name": "State Senate District 22 (2024); Hawaii",
+      "code": "22",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 2269,
+          "moe": 337
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 1329,
+          "moe": 242
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 940,
+          "moe": 278
+        }
+      }
+    },
+    {
+      "name": "State Senate District 23 (2024); Hawaii",
+      "code": "23",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1979,
+          "moe": 321
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 757,
+          "moe": 210
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 1222,
+          "moe": 250
+        }
+      }
+    },
+    {
+      "name": "State Senate District 24 (2024); Hawaii",
+      "code": "24",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 1359,
+          "moe": 294
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 384,
+          "moe": 133
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 975,
+          "moe": 254
+        }
+      }
+    },
+    {
+      "name": "State Senate District 25 (2024); Hawaii",
+      "code": "25",
+      "kind": "district",
+      "chamber": "Senate",
+      "countyCode": "003",
+      "snap": {
+        "total": {
+          "id": "S2201_C01_021E",
+          "estimate": 853,
+          "moe": 189
+        },
+        "receiving": {
+          "id": "S2201_C03_021E",
+          "estimate": 172,
+          "moe": 78
+        },
+        "notReceiving": {
+          "id": "S2201_C05_021E",
+          "estimate": 681,
+          "moe": 171
+        }
+      }
+    }
+  ],
+  "validations": {
+    "metadataVerified": true,
+    "districtCounts": {
+      "House": 51,
+      "Senate": 25
+    },
+    "countyMappingMethod": "Office of Elections 2022 district allocation; House 1–8 Hawaiʻi, 9–14 Maui, 15–17 Kauaʻi, 18–51 Honolulu; Senate 1–4 Hawaiʻi, 5–7 Maui, 8 Kauaʻi, 9–25 Honolulu."
+  }
+}
