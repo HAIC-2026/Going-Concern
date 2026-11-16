@@ -12,8 +12,8 @@ const menu:{href:string;label:string;icon:WorkspaceIconName}[]=[
  {href:"/activity",label:"Activity Center",icon:"activity"},
  {href:"/partners",label:"Partner Directory",icon:"partners"},
  {href:"/settings",label:"Settings",icon:"settings"},
- {href:"/programs",label:"Program Discovery",icon:"opportunity"},
- {href:"/outreach",label:"Outreach Gap",icon:"sources"},
+ {href:"/programs",label:"Program Discovery",icon:"programs"},
+ {href:"/outreach",label:"Outreach Gap",icon:"outreach"},
  {href:"/analytics",label:"Analytics Studio",icon:"analytics"}
 ];
 
