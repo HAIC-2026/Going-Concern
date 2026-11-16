@@ -3,17 +3,18 @@ import {useEffect,useState,type ReactNode} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import styles from "./WorkspaceShell.module.css";
+import WorkspaceIcon,{type WorkspaceIconName} from "./WorkspaceIcon";
 
 export type PageKey = "overview"|"map"|"initiatives"|"activity"|"partners"|"settings";
-const menu:{href:string;label:string;icon:string;key:PageKey}[]=[
- {href:"/",label:"Overview",icon:"⌂",key:"overview"},
- {href:"/map",label:"Map View",icon:"◈",key:"map"},
- {href:"/initiatives",label:"Opportunity Workspace",icon:"▣",key:"initiatives"},
- {href:"/activity",label:"Activity Center",icon:"◷",key:"activity"},
- {href:"/partners",label:"Partner Directory",icon:"♧",key:"partners"},
- {href:"/analytics",label:"Analytics Studio",icon:"▥",key:"overview"},
- {href:"/outreach",label:"SNAP Data & Sources",icon:"▤",key:"overview"},
- {href:"/settings",label:"Settings",icon:"⚙",key:"settings"}
+const menu:{href:string;label:string;icon:WorkspaceIconName;key:PageKey}[]=[
+ {href:"/",label:"Overview",icon:"home",key:"overview"},
+ {href:"/map",label:"Map View",icon:"map",key:"map"},
+ {href:"/initiatives",label:"Opportunity Workspace",icon:"opportunity",key:"initiatives"},
+ {href:"/activity",label:"Activity Center",icon:"activity",key:"activity"},
+ {href:"/partners",label:"Partner Directory",icon:"partners",key:"partners"},
+ {href:"/analytics",label:"Analytics Studio",icon:"analytics",key:"overview"},
+ {href:"/outreach",label:"SNAP Data & Sources",icon:"sources",key:"overview"},
+ {href:"/settings",label:"Settings",icon:"settings",key:"settings"}
 ];
 export default function WorkspaceShell({children,title,kicker,actions}:{children:ReactNode;title:string;kicker?:string;actions?:ReactNode}){
  const pathname=usePathname();
@@ -35,7 +36,7 @@ export default function WorkspaceShell({children,title,kicker,actions}:{children
   </header>
   <aside className={styles.sidebar}>
    <div className={styles.location}>{!collapsed&&<><small>SELECTED DISTRICT</small><strong>{profile?.chamber||"House"} District {profile?.district||"1"}</strong></>}</div>
-   <nav aria-label="Workspace navigation">{menu.map(m=><Link key={m.href} href={m.href} title={m.label} aria-current={pathname===m.href?"page":undefined}><span aria-hidden="true">{m.icon}</span>{!collapsed&&<span>{m.label}</span>}</Link>)}</nav>
+   <nav aria-label="Workspace navigation">{menu.map(m=><Link key={m.href} href={m.href} title={m.label} aria-current={pathname===m.href?"page":undefined}><WorkspaceIcon name={m.icon}/>{!collapsed&&<span>{m.label}</span>}</Link>)}</nav>
    <div className={styles.sidebottom}><button type="button" onClick={sidebar} aria-label={collapsed?"Expand navigation":"Collapse navigation"} aria-expanded={!collapsed}>{collapsed?"»":"« Collapse menu"}</button>{!collapsed&&<p>U.S. Census Bureau · ACS 5-Year<br/>Demo workspace · locally saved</p>}</div>
   </aside>
   <main className={styles.main}><div className={styles.heading}><div><small>{kicker||"GOING CONCERN / DISTRICT INTELLIGENCE"}</small><h1>{title}</h1></div>{actions&&<div className={styles.actions}>{actions}</div>}</div>{children}</main>
