@@ -6,7 +6,7 @@
  --surface2:rgba(141,215,207,.55);
  position:relative;min-height:100dvh;color:var(--gc-ink);
  font:14px/1.5 Arial,Helvetica,sans-serif;
- background:#72b8c4 url('/hawaii-twilight.jpg') center center / cover fixed no-repeat;
+ background:#72b8c4 url('/gc-diamondhead-day.png') center center / cover fixed no-repeat;
 }
 .shell.night{
  --gc-ink:#fbf4ff;--gc-muted:#ddd2ed;--gc-action:#a076de;
