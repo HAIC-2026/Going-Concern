@@ -208,3 +208,12 @@
 .onboardingCard h2{color:#123e41!important}.onboardingCard p,.onboardingCard label,.onboardingCard small{color:#355f65!important}
 .onboardingCard input,.onboardingCard select{background:#fff!important;color:#173d40!important;border:1px solid #76afba!important}
 .onboardingCard button{background:#087f79!important;color:#fff!important;border-color:#0a726e!important}
+
+/* Consistent daytime login controls: remove purple legacy accents and focus ring. */
+.onboardingCard :is(input,select,button):focus,.onboardingCard :is(input,select,button):focus-visible{
+ outline:3px solid #087e79!important;outline-offset:2px;box-shadow:0 0 0 2px rgba(255,255,255,.8)!important
+}
+.onboardingCard select,.onboardingCard select:focus{border-color:#65aaa6!important;color:#123e42!important;accent-color:#087e79!important}
+.onboardingCard option{background:#fff!important;color:#123e42!important}
+.onboardingCard .welcomeSavedDistrict{background:rgba(204,242,234,.75)!important;color:#114447!important;border-color:#8ecbc4!important}
+.onboardingCard .welcomeSwitch{background:#e4f6f2!important;color:#135c5b!important;border:1px solid #8dbfbd!important}
