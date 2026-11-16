@@ -68,12 +68,10 @@ type Props={children:ReactNode;title:string;kicker?:string;actions?:ReactNode;ma
 export default function WorkspaceShell({children,title,kicker,actions,mapMode=false,hideHeading=false}:Props){
  const [theme,setTheme]=useState<"day"|"night">("day");
  const [collapsed,setCollapsed]=useState(false);
- const [profile,setProfile]=useState<{name?:string;chamber?:string;district?:string}|null>(null);
  useEffect(()=>{
   const sync=()=>{try{
     setTheme(localStorage.getItem("gc-color-mode")==="night"?"night":"day");
     setCollapsed(localStorage.getItem("gc-nav-collapsed")==="1");
-    setProfile(JSON.parse(localStorage.getItem("gc-demo-profile")||"null"));
   }catch{}};
   const themeChange=(event:Event)=>{const next=(event as CustomEvent<"day"|"night">).detail;if(next==="day"||next==="night")setTheme(next)};
   sync();
