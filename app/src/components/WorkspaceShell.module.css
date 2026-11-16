@@ -13,3 +13,37 @@
 .shell button,.shell select,.shell input,.shell textarea{font:inherit}.shell :is(a,button,input,textarea,select):focus-visible{outline:3px solid #f2b94b;outline-offset:3px}
 @media(max-width:1020px){.topnav{display:none}}@media(max-width:700px){.shell,.collapsed{grid-template-columns:1fr;grid-template-rows:68px auto 1fr}.top{grid-row:1;grid-column:1;padding:0 12px}.brand strong{font-size:17px}.sidebar{grid-row:2;grid-column:1;position:relative;top:auto;height:auto;min-height:0;border-right:0;border-bottom:1px solid var(--border)}.sidebar nav{display:flex;flex-wrap:wrap;padding:6px}.sidebar nav a{padding:6px 10px;font-size:12px}.sidebar nav a>span:first-child{font-size:15px}.sidebar .location,.sidebar .sidebottom{display:none}.main{grid-column:1;grid-row:3;padding:14px}.heading h1{font-size:24px}}
 @media print{.top,.sidebar{display:none!important}.shell,.collapsed{display:block!important;background:#fff!important;color:#101c2b!important}.main{padding:0!important;max-width:100%}.heading h1{color:#101c2b}}
+/* Unified visual system — matches the approved tropical glass Home UI. */
+.shell{--gc-panel:rgba(28,28,65,.72);--gc-panel-soft:rgba(42,38,79,.78);--gc-ink:#f7f2ff;--gc-muted:#dad0eb;--gc-rule:rgba(203,168,246,.50);--gc-action:#7951b9;--gc-action-hover:#986bd5;--gc-input:rgba(25,21,59,.8);
+  background-image:linear-gradient(130deg,rgba(9,12,40,.23),rgba(15,11,44,.26)),url('/gc-diamondhead-evening.png');
+  background-size:cover;background-position:center;background-attachment:fixed}
+.shell.day{
+ --bg:#d4eff0;--surface:rgba(194,240,235,.69);--surface2:rgba(173,229,220,.75);--border:rgba(250,255,253,.88);
+ --text:#103e45;--muted:#315d63;--accent:#087e79;--accent2:#087f78;
+ --gc-panel:rgba(195,241,234,.70);--gc-panel-soft:rgba(216,248,240,.76);--gc-ink:#103f46;--gc-muted:#315e64;
+ --gc-rule:rgba(248,255,253,.90);--gc-action:#087e79;--gc-action-hover:#066b66;--gc-input:rgba(246,255,252,.80);
+ background-image:linear-gradient(120deg,rgba(206,242,237,.08),rgba(213,244,239,.16)),url('/hawaii-twilight.jpg');
+ background-size:cover;background-position:center;background-attachment:fixed
+}
+.shell.night{--bg:#14142f;--surface:rgba(24,22,57,.78);--surface2:rgba(66,44,110,.70);--border:rgba(200,165,245,.48);--text:#f7f3ff;--muted:#d6cce8;--accent:#a679e8;--accent2:#7ddadf}
+.top,.sidebar{background:var(--gc-panel);border-color:var(--gc-rule);backdrop-filter:blur(17px) saturate(1.15);-webkit-backdrop-filter:blur(17px) saturate(1.15)}
+.top{box-shadow:0 5px 22px rgba(0,37,43,.12)}
+.sidebar{margin:8px 0 10px 9px;height:calc(100vh - 93px);top:83px;border:1px solid var(--gc-rule);border-radius:18px}
+.location{background:var(--gc-panel-soft);border-color:var(--gc-rule)}
+.sidebar nav a{color:var(--gc-ink);transition:background .18s ease;letter-spacing:.01em}
+.sidebar nav a:hover{background:var(--surface2)}
+.sidebar nav a[aria-current=page]{background:var(--gc-action);border-left:0;color:#fff;box-shadow:0 5px 13px rgba(5,52,54,.2)}
+.sidebar nav a[aria-current=page] svg{color:#fff}
+.sidebottom button,.topright button{background:var(--gc-panel-soft);border-color:var(--gc-rule);color:var(--gc-ink)}
+.sidebottom button:hover,.topright button:hover{background:var(--surface2)}
+.avatar{background:var(--gc-action)}
+.brand,.brand strong,.topnav a,.heading h1{color:var(--gc-ink)}
+.heading small{color:var(--gc-muted);letter-spacing:1.3px}
+.topnav a:hover,.topnav a:focus-visible{color:var(--accent2)}
+.main{padding:25px 25px 42px}
+.shell select,.shell input,.shell textarea{accent-color:var(--gc-action)}
+@media(max-width:700px){
+ .sidebar{margin:0;border-radius:0;height:auto;top:auto}
+ .main{padding:15px}
+}
+@media print{.shell{background:#fff!important;color:#111!important}.main{background:white!important}}
