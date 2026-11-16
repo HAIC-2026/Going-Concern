@@ -94,11 +94,11 @@ export default function Home() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   useEffect(() => { try { setSidebarOpen(localStorage.getItem("gc-nav-collapsed") !== "1"); } catch {} }, []);
-  const toggleHomeSidebar = () => setSidebarOpen(open => {
-    const next = !open;
+  const toggleHomeSidebar = () => {
+    const next = !sidebarOpen;
+    setSidebarOpen(next);
     try { localStorage.setItem("gc-nav-collapsed", next ? "0" : "1"); } catch {}
-    return next;
-  });
+  };
  const [homeOpen, setHomeOpen] = useState(true);
   const [gcTheme, setGcTheme] = useState<"night" | "day">("day");
   useEffect(() => { try { const saved = localStorage.getItem("gc-color-mode"); if (saved === "day" || saved === "night") setGcTheme(saved); } catch {} }, []);
