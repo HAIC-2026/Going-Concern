@@ -81,15 +81,19 @@ const HawaiiMap = dynamic(
 const NAV_ITEMS = [
   { icon: "⌂", label: "Home", active: false },
   { icon: "◈", label: "Map View", active: false },
-  { icon: "▤", label: "Data Layers", active: false },
-  { icon: "▥", label: "Compare Districts", active: false },
+  { icon: "▣", label: "Opportunity Workspace", active: false },
+  { icon: "◷", label: "Activity Center", active: false },
+  { icon: "♧", label: "Partner Directory", active: false },
+  { icon: "⚙", label: "Settings", active: false },
 ];
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  useEffect(() => { try { setSidebarOpen(localStorage.getItem("gc-nav-collapsed") !== "1"); } catch {} }, []);
+  useEffect(() => { try { localStorage.setItem("gc-nav-collapsed", sidebarOpen ? "0" : "1"); } catch {} }, [sidebarOpen]);
  const [homeOpen, setHomeOpen] = useState(true);
   const [gcTheme, setGcTheme] = useState<"night" | "day">("day");
-  useEffect(() => { try { if (localStorage.getItem("gc-color-mode") === "day") setGcTheme("day"); } catch {} }, []);
+  useEffect(() => { try { const saved = localStorage.getItem("gc-color-mode"); if (saved === "day" || saved === "night") setGcTheme(saved); } catch {} }, []);
   const toggleGcTheme = () => setGcTheme(current => { const next = current === "night" ? "day" : "night"; try { localStorage.setItem("gc-color-mode", next); } catch {} return next; });
   const [chamber, setChamber] = useState<Chamber>("House");
   const [selectedDistrict, setSelectedDistrict] =
@@ -422,7 +426,7 @@ export default function Home() {
           </p>
 
           <nav aria-label="Main navigation">
-            {NAV_ITEMS.filter(item => !(homeOpen && item.label === "Data Layers")).map((item) =>
+            {NAV_ITEMS.map((item) =>
               item.label === "Home" ? (
                 <button key={item.label} type="button"
                   className={`nav-item nav-button ${homeOpen ? "active" : ""}`}
@@ -430,17 +434,11 @@ export default function Home() {
                   <span className="nav-icon">{item.icon}</span>
                   <span className="nav-label">{item.label}</span>
                 </button>
-              ) : item.label === "Map View" ? (
-                <button key={item.label} type="button"
-                  className={`nav-item nav-button ${!homeOpen ? "active" : ""}`}
-                  onClick={() => setHomeOpen(false)}>
+              ) : ["Map View","Opportunity Workspace","Activity Center","Partner Directory","Settings"].includes(item.label) ? (
+                <a key={item.label} href={({ "Map View": "/map", "Opportunity Workspace": "/initiatives", "Activity Center": "/activity", "Partner Directory": "/partners", "Settings": "/settings" } as Record<string,string>)[item.label]}
+                  className="nav-item nav-button" title={item.label}>
                   <span className="nav-icon">{item.icon}</span>
                   <span className="nav-label">{item.label}</span>
-                </button>
-              ) : /* gc-analytics-studio-nav-v1 */ item.label === "Compare Districts" ? (
-                <a key={item.label} href="/analytics" className="nav-item nav-button" title="Compare districts in Analytics Studio">
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-label">Compare Districts</span>
                 </a>
               ) : item.label === "AI Insights" ? (
                 <button key={item.label} type="button"
