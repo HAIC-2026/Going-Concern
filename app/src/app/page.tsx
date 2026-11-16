@@ -489,11 +489,11 @@ export default function Home() {
   style={{ textDecoration: "none" }}
   title="Program Discovery"
 >
-  <span className="nav-icon">✧</span>
+  <span className="nav-icon"><WorkspaceIcon name="programs"/></span>
   <span className="nav-label">Program Discovery</span>
 </Link>
 <Link href="/outreach" className="nav-item nav-button" style={{ textDecoration: "none" }} title="SNAP Outreach Gap">
-  <span className="nav-icon">◎</span>
+  <span className="nav-icon"><WorkspaceIcon name="outreach"/></span>
   <span className="nav-label">Outreach Gap</span>
 </Link>
 <Link href="/analytics" className="nav-item nav-button" style={{ textDecoration: "none" }} title="Analytics Studio">
