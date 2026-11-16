@@ -85,3 +85,21 @@ Participation rate (derived): `100 × receiving below-poverty households / all b
 2. Run `npm.cmd run build`; inspect `/outreach`, both chambers, district selection, high-CV flags, county/state switch, and Print to PDF.
 3. Confirm cache-backed service works even if Census temporarily fails.
 4. Deploy the verified commit before **Monday, November 16, 2026, 9:00 a.m. HST**.
+
+## Competition workspace redesign (demonstration branch)
+
+The `feature/competition-workspace` branch adds a consistent navy/teal day/night navigation shell for new routes and a demonstration initiative workflow. Routes:
+
+- `/`: existing Home/overview with persistent session sign-in and updated navigation.
+- `/map`: interactive split map, expandable filters, House/Senate boundaries, day/night tile maps and Census geographic layers. Public geospatial tiles and Hawaiʻi GIS boundaries still require network access.
+- `/initiatives`: SNAP Opportunity Workspace with verified `/api/outreach` comparisons, user-controlled Discover → Verify → Match → Plan → Outreach → Track stages, a clickable data-to-action flow, local draft notes and email, partner selection, export of source-backed JSON and browser printing.
+- `/activity`: actions actually performed in the local demonstration browser (not fictitious approvals, sent emails or outcomes).
+- `/partners`: official resources and possible partner organizations. Listed organizations have not agreed to partner with Going Concern.
+- `/settings`: demo storage and browser appearance controls.
+- `/analytics`, `/outreach`, and `/programs`: existing analytics, Census methodology and program explorer preserved; these legacy pages have their original UI pending full visual migration.
+
+**Persistence:** Demo sign-in is stored in the current browser's `sessionStorage` and remains active across page navigation. A demo profile, theme, navigation state and editable initiative drafts use browser `localStorage`. No cloud database, multi-user approval system, official authorization or actual email-sending is implemented.
+
+**Source integrity:** the proposed SNAP flow always uses actual cached or live S2201 estimates from `/api/outreach`. No hard-coded example gap quantities, enrollment claims or success percentages. Its scenario is arithmetic using county/state comparator rates, not a forecast. All programme decisions remain with administrators.
+
+**Production deployment:** this feature branch is not automatically safe to merge. Run `npm.cmd run build`, then exercise profile persistence, all navigation links, the map in both themes, the district selection, initiative creation, local activity updates, and print/export. Commit `app/src/data/outreach-cache.json` and keep API keys in environment variables. Deploy a **tested** version with Vercel Root Directory `app`, not the repository root. Public access is required for technical review.
