@@ -1377,7 +1377,18 @@ export default function Home() {
             width: min(350px, calc(100vw - 16px));
           }
         }
-      `}</style>
+      `}
+        /* Unified Home navigation and non-floating collapse control */
+        .workspace.vision-home .nav-item:hover,
+        .workspace.vision-day .nav-item:hover{background:rgba(4,127,119,.16)!important;border-color:rgba(15,132,119,.46)!important;color:inherit!important;box-shadow:none!important}
+        .workspace.vision-home.vision-day .nav-item.active,
+        .workspace.vision-day .nav-item.active{background:rgba(4,123,116,.90)!important;border-color:rgba(236,255,250,.89)!important;color:#fff!important;box-shadow:0 5px 17px rgba(8,85,80,.16)!important}
+        .workspace.vision-home.vision-night .nav-item.active{background:rgba(81,67,156,.82)!important;border-color:rgba(215,186,245,.72)!important}
+        .workspace .collapse-handle{top:17px!important;right:8px!important;transform:none!important;width:27px!important;height:29px!important;z-index:1200!important;border:1px solid rgba(224,252,245,.7)!important;border-radius:9px!important;background:rgba(3,115,109,.62)!important;color:#fff!important;font-size:19px!important}
+        .workspace.vision-home .collapse-handle{background:rgba(5,117,110,.66)!important;border-color:rgba(243,255,255,.85)!important;color:#fff!important}
+        .workspace.sidebar-collapsed .collapse-handle{right:8px!important}
+        .workspace .collapse-handle:hover{background:#076f69!important;color:white!important}
+</style>
     </main>
   );
 }
