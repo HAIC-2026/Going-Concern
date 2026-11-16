@@ -37,8 +37,8 @@ export default function ProgramsPage() {
   }, [chamber, district]);
   return <WorkspaceShell title="Program Discovery" kicker="SOURCE-BASED PROGRAM SCREENING"><div className={styles.page}>
     
-    <header style={{ margin: "0 0 22px" }}>
-      <p style={{ color: "var(--gc-muted)", maxWidth: 780, lineHeight: 1.5 }}>Explore government assistance programs relevant to district-level outreach. These are informational leads, not determinations of individual eligibility or proof of an enrollment gap.</p></header>
+    <section style={{ margin: "0 0 22px" }}>
+      <p style={{ color: "var(--gc-muted)", maxWidth: 780, lineHeight: 1.5 }}>Explore government assistance programs relevant to district-level outreach. These are informational leads, not determinations of individual eligibility or proof of an enrollment gap.</p></section>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
       <label>Chamber <select value={chamber} onChange={e => { const c=e.target.value as "House"|"Senate";setChamber(c);setDistrict(1);setBusy(true); }} style={inputStyle}><option>House</option><option>Senate</option></select></label>
       <label>District <select value={district} onChange={e => {setDistrict(Number(e.target.value));setBusy(true);}} style={inputStyle}>{Array.from({ length: chamber === "House" ? 51 : 25 },(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select></label>
