@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import {useRouter} from "next/navigation";
 import HomeDashboard from "../components/HomeDashboard";
 import {WorkspaceSidebar} from "../components/WorkspaceShell";
@@ -67,18 +66,6 @@ type ExtraMetrics = {
   bachelorsOrHigherRate: number | null;
 };
 type DistrictMetrics = Record<string, ExtraMetrics>;
-
-const HawaiiMap = dynamic(
-  () => import("../components/HawaiiMap"),
-  {
-    ssr: false,
-    loading: () => (
-      <div style={{ color: "#d4d8dc", padding: 24 }}>
-        Loading Hawaiʻi map...
-      </div>
-    ),
-  }
-);
 
 export default function Home() {
   const router = useRouter();
@@ -359,24 +346,8 @@ export default function Home() {
         sidebarOpen ? "sidebar-expanded" : "sidebar-collapsed"
       }`}
     >
-      {/* Full-screen map */}
-      <div className="map-canvas">
-        <HawaiiMap
-          chamber={chamber}
-          mapLayer={mapLayer}
-          rentThresholds={rentBreaks ?? undefined}
-          incomeByDistrict={incomeData[chamber]}
-          valuesByDistrict={Object.fromEntries(
-            Object.entries(extraMetrics[chamber]).map(([id, metrics]) => [id, {
-              ...metrics,
-              population: populationData[chamber][id] ?? null,
-              income: incomeData[chamber][id] ?? null,
-            }])
-          )}
-          onDistrictSelect={handleDistrictSelect}
-        />
-      </div>
-
+      {/* Map View has its own route (/map). Do not mount Leaflet beneath Home:
+          the invisible MapContainer was remounting on navigation and crashing TileLayer. */}
       {homeOpen && (
         <HomeDashboard
           chamber={chamber}
