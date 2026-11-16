@@ -199,6 +199,7 @@ function SafeBasemap({theme,onRecover}:{
   useEffect(() => {
     let cancelled = false;
     let tile: L.TileLayer | null = null;
+    let scale: L.Control | null = null;
     let frame: number | null = null;
     let attempts = 0;
 
@@ -223,8 +224,13 @@ function SafeBasemap({theme,onRecover}:{
       try {
         tile = L.tileLayer(url, {attribution, maxZoom: 19});
         tile.addTo(map);
+        // Standard geographic distance scale, in kilometers/meters.
+        // Attach only after Leaflet creates its panes/controls.
+        scale = L.control.scale({position:"bottomright",metric:true,imperial:false,maxWidth:130});
+        scale.addTo(map);
       } catch {
         // Never leave a half-attached tile layer behind. Recreate MapContainer.
+        try { scale?.remove(); } catch { /* controls already torn down */ }
         try { tile?.remove(); } catch { /* previous map was removed */ }
         tile = null;
         if (!cancelled) onRecover();
@@ -235,6 +241,7 @@ function SafeBasemap({theme,onRecover}:{
     return () => {
       cancelled = true;
       if (frame !== null) window.cancelAnimationFrame(frame);
+      try { scale?.remove(); } catch { /* map already detached */ }
       try { tile?.remove(); } catch { /* map already detached */ }
     };
   }, [map,theme,onRecover]);
