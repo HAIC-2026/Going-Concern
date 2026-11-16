@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import HomeDashboard from "../components/HomeDashboard";
+import WorkspaceIcon,{type WorkspaceIconName} from "../components/WorkspaceIcon";
 type Chamber = "House" | "Senate";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type MapLayer = "boundaries" | "population" | "income" | "povertyRate" | "unemploymentRate" | "medianHomeValue" | "medianGrossRent" | "bachelorsOrHigherRate";
@@ -78,13 +79,13 @@ const HawaiiMap = dynamic(
   }
 );
 
-const NAV_ITEMS = [
-  { icon: "⌂", label: "Home", active: false },
-  { icon: "◈", label: "Map View", active: false },
-  { icon: "▣", label: "Opportunity Workspace", active: false },
-  { icon: "◷", label: "Activity Center", active: false },
-  { icon: "♧", label: "Partner Directory", active: false },
-  { icon: "⚙", label: "Settings", active: false },
+const NAV_ITEMS: { icon: WorkspaceIconName; label: string; active: boolean }[] = [
+  { icon: "home", label: "Home", active: false },
+  { icon: "map", label: "Map View", active: false },
+  { icon: "opportunity", label: "Opportunity Workspace", active: false },
+  { icon: "activity", label: "Activity Center", active: false },
+  { icon: "partners", label: "Partner Directory", active: false },
+  { icon: "settings", label: "Settings", active: false },
 ];
 
 export default function Home() {
@@ -431,13 +432,13 @@ export default function Home() {
                 <button key={item.label} type="button"
                   className={`nav-item nav-button ${homeOpen ? "active" : ""}`}
                   onClick={() => { setHomeOpen(true); setLayersOpen(false); }}>
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
                 </button>
               ) : ["Map View","Opportunity Workspace","Activity Center","Partner Directory","Settings"].includes(item.label) ? (
                 <a key={item.label} href={({ "Map View": "/map", "Opportunity Workspace": "/initiatives", "Activity Center": "/activity", "Partner Directory": "/partners", "Settings": "/settings" } as Record<string,string>)[item.label]}
                   className="nav-item nav-button" title={item.label}>
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
                 </a>
               ) : item.label === "AI Insights" ? (
@@ -445,7 +446,7 @@ export default function Home() {
                   className={`nav-item nav-button ${chatOpen ? "active" : ""}`}
                   onClick={() => { setSidebarOpen(true); setChatOpen(true); }}
                   title="AI Insights">
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
                 </button>
               ) : item.label === "Data Layers" && !homeOpen ? (
@@ -460,7 +461,7 @@ export default function Home() {
                   aria-expanded={layersOpen}
                   title="Data Layers"
                 >
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
                 </button>
               ) : (
@@ -469,7 +470,7 @@ export default function Home() {
                   className={`nav-item ${item.active ? "active" : "disabled"}`}
                   title={item.label}
                 >
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
                   <span className="nav-label">{item.label}</span>
                 </div>
               )
