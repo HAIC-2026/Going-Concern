@@ -89,7 +89,7 @@ export default function Home() {
     setSidebarOpen(next);
     try { localStorage.setItem("gc-nav-collapsed", next ? "0" : "1"); } catch {}
   };
- const [homeOpen, setHomeOpen] = useState(true);
+ const [homeOpen] = useState(true);
   const [gcTheme, setGcTheme] = useState<"night" | "day">("day");
   useEffect(() => { try { const saved = localStorage.getItem("gc-color-mode"); if (saved === "day" || saved === "night") setGcTheme(saved); } catch {} }, []);
   const toggleGcTheme = () => setGcTheme(current => { const next = current === "night" ? "day" : "night"; try { localStorage.setItem("gc-color-mode", next); } catch {} return next; });
