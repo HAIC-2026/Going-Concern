@@ -56,6 +56,7 @@ export default function AnalyticsStudio(){
  const exportRows=()=>{if(!payload)return;const columns=["Chamber","District",...payload.metrics.map(m=>m.label)];const rows=[columns,...districts.map(d=>[d.chamber,String(d.district),...payload.metrics.map(m=>d.values[m.key]==null?"":String(d.values[m.key]))])];download(`GoingConcern_${chamber}_ACS2024.csv`,"\uFEFF"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")};
  async function askAI(){if(!payload||!metric)return;setAiBusy(true);setAiError("");setAiText("");try{const response=await fetch("/api/analytics/insights",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chamber,metricKey,scope,selected,question:aiQuestion})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Advisor unavailable");setAiText(String(data.answer||"No answer returned"))}catch(e){setAiError(e instanceof Error?e.message:"Advisor unavailable")}finally{setAiBusy(false)}}
  return <WorkspaceShell title="Analytics Studio" kicker="GOING CONCERN / INTELLIGENCE" actions={<button className={styles.outlineButton} onClick={exportRows} disabled={!payload}>↓ Export CSV</button>}><div className={`${styles.screen} ${theme==="night"?styles.night:styles.day}`}>
+ <div className={styles.layout}>
   <div className={styles.main}>
 
    <section className={styles.toolbar} aria-label="Analysis controls">
