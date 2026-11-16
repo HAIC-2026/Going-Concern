@@ -1,10 +1,9 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MapContainer,
-  TileLayer,
   GeoJSON,
   useMap,
 } from "react-leaflet";
@@ -188,6 +187,60 @@ function DistrictLabels({
   return null;
 }
 
+// Attach the basemap only while Leaflet's tile pane exists. React 19 development
+// navigation can briefly expose a map whose DOM panes were already torn down;
+// react-leaflet's eager TileLayer mount can then throw on pane.appendChild.
+function SafeBasemap({theme,onRecover}:{
+  theme:"day"|"night";
+  onRecover:()=>void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    let cancelled = false;
+    let tile: L.TileLayer | null = null;
+    let frame: number | null = null;
+    let attempts = 0;
+
+    const attach = () => {
+      if (cancelled) return;
+      const container = map.getContainer();
+      const pane = map.getPane("tilePane");
+      if (!container.isConnected || !pane) {
+        // In a destroyed or partially mounted map, don't call addTo.
+        if (++attempts > 4) { onRecover(); return; }
+        frame = window.requestAnimationFrame(attach);
+        return;
+      }
+
+      const isNight = theme === "night";
+      const url = isNight
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+      const attribution = isNight
+        ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>';
+      try {
+        tile = L.tileLayer(url, {attribution, maxZoom: 19});
+        tile.addTo(map);
+      } catch {
+        // Never leave a half-attached tile layer behind. Recreate MapContainer.
+        try { tile?.remove(); } catch { /* previous map was removed */ }
+        tile = null;
+        if (!cancelled) onRecover();
+      }
+    };
+
+    frame = window.requestAnimationFrame(attach);
+    return () => {
+      cancelled = true;
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      try { tile?.remove(); } catch { /* map already detached */ }
+    };
+  }, [map,theme,onRecover]);
+  return null;
+}
+
 function MapResize() {
   const map = useMap();
 
@@ -242,6 +295,16 @@ export default function HawaiiMap({
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mapEpoch,setMapEpoch] = useState(0);
+  const recoveries = useRef(0);
+  const recoverMap = useCallback(() => {
+    if (recoveries.current >= 2) {
+      setError("Map tiles could not initialize. Reload Map View to retry.");
+      return;
+    }
+    recoveries.current += 1;
+    setMapEpoch(value => value + 1);
+  }, []);
 
   const selectedLayer = useRef<L.Path | null>(null);
   const hoveredLayer = useRef<L.Path | null>(null);
@@ -357,6 +420,7 @@ return (
 }}
   >
       <MapContainer
+        key={mapEpoch}
         center={[20.8, -156.3]}
         zoom={7}
         scrollWheelZoom={true}
@@ -370,12 +434,7 @@ return (
 
         <MapPointerReset resetHighlights={resetHighlights} />
 
-        <TileLayer
-          key={theme}
-          attribution={theme==="night"?'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>':'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'}
-          url={theme==="night"?"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png":"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
-          maxZoom={19}
-        />
+        <SafeBasemap theme={theme} onRecover={recoverMap} />
 
         {districts && (
           <>
