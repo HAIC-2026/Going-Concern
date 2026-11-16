@@ -24,3 +24,5 @@
 :global([class*="WorkspaceShell_day"]) .disclaimer{color:#345b68}
 :global([class*="WorkspaceShell_day"]) .steps small,
 :global([class*="WorkspaceShell_day"]) .kpis span{color:#3e5d6a}
+
+@media print{.card,.card h2,.card h3,.kpis article,.kpis article strong,.flowBox,.steps,.filters,.partner{background:#fff!important;color:#17283d!important}.card a,.muted,.source{color:#26374a!important}.fullLabel textarea{background:#fff!important;color:#111!important}.flowCenter,.flowBox{break-inside:avoid}.steps{display:none!important}}
