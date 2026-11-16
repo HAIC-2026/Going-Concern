@@ -8,6 +8,7 @@
  font:14px/1.5 Arial,Helvetica,sans-serif;
  background:#72b8c4 url('/gc-diamondhead-day.png') center center / cover fixed no-repeat;
 }
+.shell.day{color:var(--gc-ink)}
 .shell.night{
  --gc-ink:#fbf4ff;--gc-muted:#ddd2ed;--gc-action:#a076de;
  --gc-panel:rgba(29,24,60,.72);--gc-panel-soft:rgba(49,38,93,.70);
