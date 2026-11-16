@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import Link from "next/link";
+import WorkspaceShell from "@/components/WorkspaceShell";
 import styles from "./outreach.module.css";
 
 type Quantity={value:number|null;moe:number|null;cv:number|null;caution:boolean};
@@ -29,8 +29,6 @@ export default function OutreachPage(){
  const [payload,setPayload]=useState<Payload|null>(null);
  const [error,setError]=useState("");
  const [busy,setBusy]=useState(true);
- const [theme,setTheme]=useState<"day"|"night">("day");
- useEffect(()=>{try{setTheme(localStorage.getItem("gc-color-mode")==="night"?"night":"day")}catch{}},[]);
  useEffect(()=>{const ctl=new AbortController();setBusy(true);setError("");
   fetch("/api/outreach?chamber="+chamber,{signal:ctl.signal}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error??"SNAP data unavailable");return d as Payload})
    .then(d=>{setPayload(d);setDistrict(v=>d.districts.some(x=>x.district===v)?v:"1")}).catch(e=>{if(!ctl.signal.aborted)setError(String(e))}).finally(()=>{if(!ctl.signal.aborted)setBusy(false)});
@@ -45,14 +43,12 @@ export default function OutreachPage(){
  const max=useMemo(()=>Math.max(1,...(payload?.districts??[]).map(d=>d.districtStats.gap.value??0)),[payload]);
  const ranks=useMemo(()=>[...(payload?.districts??[])].filter(d=>d.districtStats.gap.value!==null).sort((a,b)=>(b.districtStats.gap.value??0)-(a.districtStats.gap.value??0)),[payload]);
  function brief(){window.print()}
- return <div className={`${styles.page} ${theme==="night"?styles.night:""}`}>
-  <div className={styles.scenery} aria-hidden="true"/>
+ return <WorkspaceShell title="Outreach Gap" hideHeading><div className={styles.page}>
   <div className={styles.shell}>
-   <nav className={styles.nav} aria-label="Going Concern navigation"><Link href="/">Home</Link><Link href="/analytics">Analytics Studio</Link><Link href="/programs">Program Discovery</Link><span aria-current="page">Outreach Gap</span></nav>
-   <main className={styles.content}>
-    <header className={styles.top}><div><p className={styles.eyebrow}>KNOW YOUR DISTRICT · GOING CONCERN</p><h1>SNAP outreach gap</h1><p>Below-poverty households not receiving SNAP. An outreach indicator, not an eligibility determination.</p></div>
-     <div className={styles.topActions}><button onClick={()=>{const next=theme==="day"?"night":"day";setTheme(next);localStorage.setItem("gc-color-mode",next)}} aria-label="Toggle day and evening mode">{theme==="day"?"☾ Evening":"☀ Day"}</button><button onClick={brief} disabled={!row}>Export one-pager / Print</button></div>
-    </header>
+   <div className={styles.content}>
+    <section className={styles.top}><div><p className={styles.eyebrow}>KNOW YOUR DISTRICT · GOING CONCERN</p><h1>SNAP outreach gap</h1><p>Below-poverty households not receiving SNAP. An outreach indicator, not an eligibility determination.</p></div>
+     <div className={styles.topActions}><button onClick={brief} disabled={!row}>Export one-pager / Print</button></div>
+    </section>
     <section className={styles.filters} aria-label="Select legislative district">
      <fieldset><legend>Chamber</legend><div className={styles.switch}><button aria-pressed={chamber==="House"} onClick={()=>setChamber("House")}>House · 51</button><button aria-pressed={chamber==="Senate"} onClick={()=>setChamber("Senate")}>Senate · 25</button></div></fieldset>
      <label>District<select value={district} onChange={e=>setDistrict(e.target.value)}>{payload?.districts.map(d=><option key={d.district} value={d.district}>{chamber} District {d.district}</option>)}</select></label>
@@ -82,7 +78,7 @@ export default function OutreachPage(){
      </section>
      <footer className={styles.footer}><p><strong>Source:</strong> U.S. Census Bureau {payload.vintage} ACS five-year, subject table S2201, variables C01/C03/C05 row 021, published 90% margins of error. {payload.geographicBasis}.</p><p><strong>Calculation:</strong> participation = S2201_C03_021E / S2201_C01_021E. Direct below-poverty nonrecipient count = S2201_C05_021E. Percentage MOE uses ACS subset-ratio approximation with fallback to general ratio; CV = MOE / (1.645 × estimate). High-uncertainty flag if CV &gt;30%.</p><p><strong>County method:</strong> {payload.method}</p><p>{payload.caveat}</p><p>Generated from Census estimates, not individual records. Final SNAP eligibility and benefit enrollment are decided by Hawaiʻi DHS. Source vintage: {payload.vintage}; data pulled: {payload.fetchedAt}.</p></footer>
     </div>}
-   </main>
+   </div>
   </div>
- </div>;
+ </div></WorkspaceShell>;
 }
