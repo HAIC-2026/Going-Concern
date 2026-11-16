@@ -23,6 +23,7 @@ export default function MapPage(){
  const [error,setError]=useState("");
  const [loading,setLoading]=useState(true);
  useEffect(()=>{try{setTheme(localStorage.getItem("gc-color-mode")==="day"?"day":"night");const p=JSON.parse(localStorage.getItem("gc-demo-profile")||"null");if(p?.chamber==="House"||p?.chamber==="Senate")setChamber(p.chamber)}catch{}},[]);
+ useEffect(()=>{const sync=(event:Event)=>{const mode=(event as CustomEvent<"day"|"night">).detail;if(mode==="day"||mode==="night")setTheme(mode)};window.addEventListener("gc-theme-changed",sync);return()=>window.removeEventListener("gc-theme-changed",sync)},[]);
  useEffect(()=>{const c=new AbortController();setLoading(true);setError("");
   fetch("/api/census?chamber="+chamber,{signal:c.signal}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||"Census data unavailable");return d as {districts:District[]}}).then(d=>setRows(d.districts))
    .catch(e=>{if(!c.signal.aborted){setRows([]);setError(String(e))}}).finally(()=>{if(!c.signal.aborted)setLoading(false)});
