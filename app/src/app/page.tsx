@@ -3,10 +3,9 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import {useRouter} from "next/navigation";
 import HomeDashboard from "../components/HomeDashboard";
-import WorkspaceIcon,{type WorkspaceIconName} from "../components/WorkspaceIcon";
+import {WorkspaceSidebar} from "../components/WorkspaceShell";
 type Chamber = "House" | "Senate";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type MapLayer = "boundaries" | "population" | "income" | "povertyRate" | "unemploymentRate" | "medianHomeValue" | "medianGrossRent" | "bachelorsOrHigherRate";
@@ -81,15 +80,6 @@ const HawaiiMap = dynamic(
   }
 );
 
-const NAV_ITEMS: { icon: WorkspaceIconName; label: string; active: boolean }[] = [
-  { icon: "home", label: "Home", active: false },
-  { icon: "map", label: "Map View", active: false },
-  { icon: "opportunity", label: "Opportunity Workspace", active: false },
-  { icon: "activity", label: "Activity Center", active: false },
-  { icon: "partners", label: "Partner Directory", active: false },
-  { icon: "settings", label: "Settings", active: false },
-];
-
 export default function Home() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -108,7 +98,6 @@ export default function Home() {
     useState<SelectedDistrict | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [mapLayer, setMapLayer] = useState<MapLayer>("boundaries");
-  const [layersOpen, setLayersOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -426,151 +415,13 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Sidebar and attached collapse handle */}
-      <aside className="sidebar">
-        <div className="sidebar-content">
-          <p className="section-label">
-            {sidebarOpen ? "WORKSPACE" : "•••"}
-          </p>
-
-          <nav aria-label="Main navigation">
-            {NAV_ITEMS.map((item) =>
-              item.label === "Home" ? (
-                <button key={item.label} type="button"
-                  className={`nav-item nav-button ${homeOpen ? "active" : ""}`}
-                  onClick={() => { setHomeOpen(true); setLayersOpen(false); }}>
-                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
-                  <span className="nav-label">{item.label}</span>
-                </button>
-              ) : ["Map View","Opportunity Workspace","Activity Center","Partner Directory","Settings"].includes(item.label) ? (
-                <Link key={item.label} href={({ "Map View": "/map", "Opportunity Workspace": "/initiatives", "Activity Center": "/activity", "Partner Directory": "/partners", "Settings": "/settings" } as Record<string,string>)[item.label]}
-                  className="nav-item nav-button" title={item.label}>
-                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
-                  <span className="nav-label">{item.label}</span>
-                </Link>
-              ) : item.label === "AI Insights" ? (
-                <button key={item.label} type="button"
-                  className={`nav-item nav-button ${chatOpen ? "active" : ""}`}
-                  onClick={() => { setSidebarOpen(true); setChatOpen(true); }}
-                  title="AI Insights">
-                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
-                  <span className="nav-label">{item.label}</span>
-                </button>
-              ) : item.label === "Data Layers" && !homeOpen ? (
-                <button
-                  key={item.label}
-                  type="button"
-                  className="nav-item nav-button"
-                  onClick={() => {
-                    setSidebarOpen(true);
-                    setLayersOpen((open) => !open);
-                  }}
-                  aria-expanded={layersOpen}
-                  title="Data Layers"
-                >
-                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
-                  <span className="nav-label">{item.label}</span>
-                </button>
-              ) : (
-                <div
-                  key={item.label}
-                  className={`nav-item ${item.active ? "active" : "disabled"}`}
-                  title={item.label}
-                >
-                  <span className="nav-icon"><WorkspaceIcon name={item.icon}/></span>
-                  <span className="nav-label">{item.label}</span>
-                </div>
-              )
-            )}
-
-<Link
-  href="/programs"
-  className="nav-item nav-button"
-  style={{ textDecoration: "none" }}
-  title="Program Discovery"
->
-  <span className="nav-icon"><WorkspaceIcon name="programs"/></span>
-  <span className="nav-label">Program Discovery</span>
-</Link>
-<Link href="/outreach" className="nav-item nav-button" style={{ textDecoration: "none" }} title="SNAP Outreach Gap">
-  <span className="nav-icon"><WorkspaceIcon name="outreach"/></span>
-  <span className="nav-label">Outreach Gap</span>
-</Link>
-<Link href="/analytics" className="nav-item nav-button" style={{ textDecoration: "none" }} title="Analytics Studio">
-  <span className="nav-icon"><WorkspaceIcon name="analytics"/></span>
-  <span className="nav-label">Analytics Studio</span>
-</Link>
-
-            {sidebarOpen && layersOpen && !homeOpen && (
-              <div className="layer-options" aria-label="Map data layer">
-                <p>MAP COLORING</p>
-                <label>
-                  <input type="radio" name="map-layer" checked={mapLayer === "boundaries"}
-                    onChange={() => setMapLayer("boundaries")} />
-                  Boundaries only
-                </label>
-                {(Object.entries(LAYER_DEFINITIONS) as [Exclude<MapLayer, "boundaries">, LayerDefinition][]).map(([id, definition]) => (
-                  <label key={id}>
-                    <input type="radio" name="map-layer" checked={mapLayer === id}
-                      onChange={() => setMapLayer(id)} />
-                    {definition.label}
-                  </label>
-                ))}
-
-              </div>
-            )}
-          </nav>
-
-                    <div className="gc-theme-switch-wrap">
-            <button
-              type="button"
-              className="gc-theme-switch"
-              onClick={toggleGcTheme}
-              title={gcTheme === "night" ? "Switch to day mode" : "Switch to night mode"}
-              aria-label={gcTheme === "night" ? "Switch to day mode" : "Switch to night mode"}
-              aria-pressed={gcTheme === "day"}
-            ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5 8.5 8.5 0 1 0 20.5 14.3Z"/></svg><span className={gcTheme === "day" ? "gc-theme-knob day" : "gc-theme-knob"} /><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button>
-          </div>
-          {sidebarOpen && <button type="button" className="gc-profile-nav" onClick={() => {
-            try { sessionStorage.setItem('gc-open-profile', '1'); } catch {}
-            setHomeOpen(true);
-            window.dispatchEvent(new Event('gc-open-profile'));
-          }} title="Change the demo profile or selected district" aria-label="Switch demo profile">
-            <span aria-hidden="true" className="gc-profile-nav-icon">♙</span><span>Switch Profile</span>
-          </button>}
-          {sidebarOpen && (
-            <div className="sources">
-              <strong>DATA SOURCES</strong>
-              <p>State of Hawaiʻi GIS</p>
-              <p>U.S. Census Bureau</p>
-              <p>2024 ACS 5-Year</p>
-            </div>
-          )}
-        </div>
-
-        <button
-          type="button"
-          className="collapse-handle"
-          onClick={toggleHomeSidebar}
-          aria-label={
-            sidebarOpen
-              ? "Collapse sidebar"
-              : "Expand sidebar"
-          }
-          aria-expanded={sidebarOpen}
-          title={
-            sidebarOpen
-              ? "Collapse sidebar"
-              : "Expand sidebar"
-          }
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="16" rx="2.5"/>
-            <path d="M9 4v16"/>
-            {sidebarOpen ? <path d="m16 9-3 3 3 3"/> : <path d="m13 9 3 3-3 3"/>}
-          </svg>
-        </button>
-      </aside>
+      {/* Same component used by Opportunity Workspace — no second Home menu. */}
+      <WorkspaceSidebar
+        theme={gcTheme}
+        collapsed={!sidebarOpen}
+        onToggleSidebar={toggleHomeSidebar}
+        onToggleTheme={toggleGcTheme}
+      />
 
       {/* Right-side intelligence panel */}
       <aside
