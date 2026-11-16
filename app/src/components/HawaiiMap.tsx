@@ -297,20 +297,25 @@ export default function HawaiiMap({
   const [error, setError] = useState("");
   const [mapEpoch,setMapEpoch] = useState(0);
   const recoveries = useRef(0);
-  const recoverMap = useCallback(() => {
-    if (recoveries.current >= 2) {
-      setError("Map tiles could not initialize. Reload Map View to retry.");
-      return;
-    }
-    recoveries.current += 1;
-    setMapEpoch(value => value + 1);
-  }, []);
 
   const selectedLayer = useRef<L.Path | null>(null);
   const hoveredLayer = useRef<L.Path | null>(null);
   const districtLayers = useRef<Set<L.Path>>(new Set());
   const baseStyles = useRef<Map<L.Path, L.PathOptions>>(new Map());
   const layerNumbers = useRef<Map<L.Path, string>>(new Map());
+  const recoverMap = useCallback(() => {
+    if (recoveries.current >= 2) {
+      setError("Map tiles could not initialize. Reload Map View to retry.");
+      return;
+    }
+    recoveries.current += 1;
+    selectedLayer.current = null;
+    hoveredLayer.current = null;
+    districtLayers.current.clear();
+    baseStyles.current.clear();
+    layerNumbers.current.clear();
+    setMapEpoch(value => value + 1);
+  }, []);
 
   // Recolor existing Leaflet polygons without remounting them, preserving selection.
   useEffect(() => {
