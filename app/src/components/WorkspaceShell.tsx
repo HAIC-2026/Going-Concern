@@ -50,7 +50,11 @@ export default function WorkspaceShell({children,title,kicker,actions,mapMode=fa
   <aside className={styles.sidebar} aria-label="Workspace sidebar">
    <button type="button" className={styles.collapseHandle} onClick={toggleSidebar}
     aria-expanded={!collapsed} aria-label={collapsed?"Expand sidebar":"Collapse sidebar"} title={collapsed?"Expand sidebar":"Collapse sidebar"}>
-    {collapsed?"›":"‹"}
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+     <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+     <path d="M9 4v16"/>
+     {collapsed ? <path d="m13 9 3 3-3 3"/> : <path d="m16 9-3 3 3 3"/>}
+    </svg>
    </button>
    {!collapsed&&<div className={styles.islands} aria-hidden="true"/>}
    <nav className={styles.nav} aria-label="Main navigation">
