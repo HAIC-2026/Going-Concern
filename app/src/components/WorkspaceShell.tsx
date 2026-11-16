@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useState,type ReactNode} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import styles from "./WorkspaceShell.module.css";
@@ -15,7 +15,7 @@ const menu:{href:string;label:string;icon:string;key:PageKey}[]=[
  {href:"/outreach",label:"SNAP Data & Sources",icon:"▤",key:"overview"},
  {href:"/settings",label:"Settings",icon:"⚙",key:"settings"}
 ];
-export default function WorkspaceShell({children,title,kicker,actions}:{children:React.ReactNode;title:string;kicker?:string;actions?:React.ReactNode}){
+export default function WorkspaceShell({children,title,kicker,actions}:{children:ReactNode;title:string;kicker?:string;actions?:ReactNode}){
  const pathname=usePathname();
  const [theme,setTheme]=useState<"day"|"night">("night");
  const [collapsed,setCollapsed]=useState(false);
