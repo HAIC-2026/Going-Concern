@@ -20,7 +20,7 @@ export default function HomeDashboard({chamber,populations,incomes,details,onCha
   const [isSignedIn,setIsSignedIn] = useState(false); // gc-welcome-login-v1
   useEffect(() => {
     const openProfile = () => {
-      try { sessionStorage.removeItem('gc-open-profile'); localStorage.removeItem('gc-demo-profile'); } catch {}
+      try { sessionStorage.removeItem('gc-open-profile'); sessionStorage.removeItem('gc-session-entered'); localStorage.removeItem('gc-demo-profile'); } catch {}
       setDraftName(profileName);
       setDraftDistrict(district);
       setDistrict('');
@@ -34,7 +34,7 @@ export default function HomeDashboard({chamber,populations,incomes,details,onCha
   useEffect(() => {try {
     const data=JSON.parse(localStorage.getItem("gc-demo-profile") || "null");
     if (data && typeof data.name==="string" && /^(House|Senate)$/.test(data.chamber) && /^\d+$/.test(data.district)) {
-      setProfileName(data.name); setDistrict(data.district); onChamberChange(data.chamber); setIsOnboarded(true);
+      setProfileName(data.name); setDistrict(data.district); onChamberChange(data.chamber); setIsOnboarded(true); setIsSignedIn(sessionStorage.getItem('gc-session-entered') === '1');
     } else { setIsOnboarded(false); }
   }catch{setIsOnboarded(false);}}, []);
   const [search,setSearch] = useState("");
@@ -62,8 +62,8 @@ export default function HomeDashboard({chamber,populations,incomes,details,onCha
         <h2>Aloha{profileName ? ", " + profileName : ""}.</h2>
         <p>Welcome back. Your saved district workspace is ready.</p>
         <div className={styles.welcomeSavedDistrict}>State {chamber} District {district}</div>
-        <button type="button" autoFocus onClick={() => setIsSignedIn(true)}>Enter dashboard →</button>
-        <button type="button" className={styles.welcomeSwitch} onClick={() => { try { localStorage.removeItem('gc-demo-profile'); } catch {} setDraftName(profileName); setDraftDistrict(''); setDistrict(''); setIsOnboarded(false); }}>Use a different profile</button>
+        <button type="button" autoFocus onClick={() => { sessionStorage.setItem('gc-session-entered', '1'); setIsSignedIn(true); }}>Enter dashboard →</button>
+        <button type="button" className={styles.welcomeSwitch} onClick={() => { try { localStorage.removeItem('gc-demo-profile'); sessionStorage.removeItem('gc-session-entered'); } catch {} setDraftName(profileName); setDraftDistrict(''); setDistrict(''); setIsOnboarded(false); }}>Use a different profile</button>
         <small>This is a demonstration profile, not secure authentication.</small>
        </div> : (<>
       <form className={styles.onboardingCard} onSubmit={e=>{
@@ -71,7 +71,7 @@ export default function HomeDashboard({chamber,populations,incomes,details,onCha
         const cleanName=draftName.trim().slice(0,60);
         if(!cleanName || !draftDistrict || !choices.includes(draftDistrict)) return;
         const profile={name:cleanName,chamber,district:draftDistrict};
-        try {localStorage.setItem("gc-demo-profile",JSON.stringify(profile));}catch{}
+        try {localStorage.setItem("gc-demo-profile",JSON.stringify(profile)); sessionStorage.setItem('gc-session-entered','1');}catch{}
         setProfileName(cleanName);setDistrict(draftDistrict);setIsOnboarded(true);setIsSignedIn(true);
       }}>
         <span className={styles.eyebrow}>YOUR DISTRICT INTELLIGENCE WORKSPACE</span>
@@ -108,7 +108,7 @@ export default function HomeDashboard({chamber,populations,incomes,details,onCha
         <div><span className={styles.eyebrow}>DISTRICT OVERVIEW</span><h3>{active?`State ${chamber} District ${active}`:"Loading district data"}</h3><p>2024 ACS 5-Year Estimates · 2022 legislative district boundaries</p></div>
         <div className={styles.controls}>
           <button type="button" className={styles.profileAction} onClick={() => {
-            try { localStorage.removeItem("gc-demo-profile"); } catch {}
+            try { localStorage.removeItem("gc-demo-profile"); sessionStorage.removeItem('gc-session-entered'); } catch {}
             setDraftName(profileName); setDraftDistrict(district); setDistrict(""); setIsSignedIn(false); setIsOnboarded(false);
           }}>Change profile</button>
           <div className={styles.segment} role="group" aria-label="Legislative chamber">{(["House","Senate"] as const).map(c=><button key={c} type="button" aria-pressed={chamber===c} className={chamber===c?styles.picked:""} onClick={()=>onChamberChange(c)}>{c}</button>)}</div>
